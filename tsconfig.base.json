@@ -1,0 +1,12 @@
+{
+  "extends": "./config/typescript-config/library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "config/*": ["config/*"]
+    }
+  },
+  "include": ["src/**/*", "config/**/*"],
+  "exclude": ["node_modules", "dist", ".turbo"]
+}
