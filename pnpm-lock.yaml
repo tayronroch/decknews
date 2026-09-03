@@ -9,19 +9,19 @@ importers:
   .:
     dependencies:
       '@prisma/client':
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       next:
-        specifier: ^15.2.0
+        specifier: ^15.2.9
         version: 15.5.25(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react:
-        specifier: ^19.0.0
+        specifier: ^19.0.8
         version: 19.2.8
       react-dom:
-        specifier: ^19.0.0
+        specifier: ^19.0.8
         version: 19.2.8(react@19.2.8)
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.24.4
         version: 3.25.76
     devDependencies:
       '@commitlint/cli':
@@ -52,25 +52,25 @@ importers:
         specifier: 2.2.2
         version: 2.2.2(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
       '@secretlint/secretlint-rule-preset-recommend':
-        specifier: ^13.0.2
+        specifier: ^13.0.5
         version: 13.0.5
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
       '@types/node':
-        specifier: ^22.13.4
+        specifier: ^22.13.17
         version: 22.20.1
       '@types/react':
-        specifier: ^19.0.10
+        specifier: ^19.0.14
         version: 19.2.18
       '@types/react-dom':
-        specifier: ^19.0.4
+        specifier: ^19.0.6
         version: 19.2.5(@types/react@19.2.18)
       eslint:
         specifier: ^9.20.1
         version: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
       eslint-config-next:
-        specifier: ^15.2.0
+        specifier: ^15.2.9
         version: 15.5.25(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
       eslint-plugin-react:
         specifier: ^7.37.5
@@ -94,16 +94,16 @@ importers:
         specifier: ^30.5.1
         version: 30.5.1(supports-color@10.2.2)
       prettier:
-        specifier: ^3.5.1
+        specifier: ^3.5.3
         version: 3.9.6
       prettier-plugin-tailwindcss:
-        specifier: ^0.6.11
+        specifier: ^0.6.14
         version: 0.6.14(prettier@3.9.6)
       prisma:
-        specifier: ^6.4.0
+        specifier: ^6.4.1
         version: 6.19.3(typescript@5.9.3)
       secretlint:
-        specifier: ^13.0.2
+        specifier: ^13.0.5
         version: 13.0.5(supports-color@10.2.2)
       typescript:
         specifier: ^5.7.3
