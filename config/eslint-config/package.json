@@ -8,9 +8,8 @@
     "node.js"
   ],
   "devDependencies": {
-    "@rocketseat/eslint-config": "2.2.2",
     "@decknews/prettier": "workspace:*",
-    "eslint-plugin-simple-import-sort": "12.1.1"
+    "eslint-plugin-simple-import-sort": "^14.0.0"
   },
   "prettier": "@decknews/prettier",
   "eslintConfig": {
