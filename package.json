@@ -21,7 +21,12 @@
     "check": "pnpm lint:check",
     "fix": "pnpm lint:fix",
     "audit": "pnpm audit",
-    "update-dev": "pnpm dlx npm-check-updates -i --format group",
+    "update:check": "pnpm dlx npm-check-updates --format group",
+    "update:patch": "pnpm dlx npm-check-updates -u --target patch",
+    "update:minor": "pnpm dlx npm-check-updates -u --target minor",
+    "update:major": "pnpm dlx npm-check-updates -i --target latest --format group",
+    "update:interactive": "pnpm dlx npm-check-updates -i --format group",
+    "update-dev": "pnpm update:interactive",
     "prepare": "husky"
   },
   "dependencies": {
