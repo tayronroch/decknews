@@ -153,6 +153,7 @@ pnpm start
 | `pnpm test`                  | Executa os testes automatizados com Jest               |
 | `pnpm test:watch`            | Executa o Jest em modo watch interativo                |
 | `pnpm test:cov`              | Executa os testes com relatório de cobertura de código |
+| `pnpm update-dev`            | Atualização interativa de dependências via ncu         |
 
 ---
 

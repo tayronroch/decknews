@@ -21,6 +21,7 @@
     "check": "pnpm lint:check",
     "fix": "pnpm lint:fix",
     "audit": "pnpm audit",
+    "update-dev": "pnpm dlx npm-check-updates -i --format group",
     "prepare": "husky"
   },
   "dependencies": {
