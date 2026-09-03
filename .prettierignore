@@ -15,3 +15,6 @@ package-lock.json
 
 # Coverage
 coverage/
+
+# Next.js auto-generated
+next-env.d.ts

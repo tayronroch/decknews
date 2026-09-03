@@ -1,10 +1,9 @@
 {
   "extends": "./config/typescript-config/library.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "config/*": ["config/*"]
+      "config/*": ["./config/*"]
     }
   },
   "include": ["src/**/*", "config/**/*"],
