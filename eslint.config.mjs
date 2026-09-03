@@ -1,12 +1,28 @@
-import js from '@eslint/js'
+import { createRequire } from 'node:module'
+import Module from 'node:module'
+
+const require = createRequire(import.meta.url)
+try {
+  const ts6 = require('@typescript/typescript6')
+  const originalLoad = Module._load
+  Module._load = function (request, parent, isMain) {
+    if (request === 'typescript') {
+      return ts6
+    }
+    return originalLoad.apply(this, arguments)
+  }
+} catch {
+  // fallback
+}
+
+const typescriptParser = require('@typescript-eslint/parser')
 import nextPlugin from '@next/eslint-plugin-next'
 import reactPlugin from 'eslint-plugin-react'
 import hooksPlugin from 'eslint-plugin-react-hooks'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import unusedImports from 'eslint-plugin-unused-imports'
-import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
+export default [
   {
     ignores: [
       '.next/**',
@@ -23,9 +39,15 @@ export default tseslint.config(
       '.*.mjs',
     ],
   },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
   {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
     plugins: {
       '@next/next': nextPlugin,
       react: reactPlugin,
@@ -50,8 +72,6 @@ export default tseslint.config(
       'react-hooks/use-memo': 'off',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'warn',
@@ -64,10 +84,6 @@ export default tseslint.config(
           ignoreRestSiblings: true,
         },
       ],
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/triple-slash-reference': 'off',
       '@next/next/no-img-element': 'off',
       'no-empty': 'off',
       'no-use-before-define': 'off',
@@ -81,5 +97,5 @@ export default tseslint.config(
         version: 'detect',
       },
     },
-  }
-)
+  },
+]

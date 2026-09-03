@@ -5,7 +5,7 @@ export interface SendMailOptions {
 }
 
 export interface MailService {
-  sendMail(options: SendMailOptions): Promise<void>
+  sendMail(_options: SendMailOptions): Promise<void>
 }
 
 export class ConsoleMailService implements MailService {
