@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 20",
+  "display": "Node 24",
   "_version": "20.1.0",
 
   "compilerOptions": {
