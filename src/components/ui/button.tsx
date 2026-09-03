@@ -4,17 +4,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
 }
 
-export function Button({ children, ...props }: ButtonProps) {
+export function Button({ children, className, ...props }: ButtonProps) {
   return (
     <button
-      style={{
-        padding: '0.5rem 1rem',
-        borderRadius: '0.375rem',
-        border: 'none',
-        backgroundColor: '#0284c7',
-        color: '#ffffff',
-        cursor: 'pointer',
-      }}
+      className={`cursor-pointer rounded-md border-0 bg-sky-600 px-4 py-2 text-white ${className ?? ''}`}
       {...props}
     >
       {children}

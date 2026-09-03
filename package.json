@@ -51,6 +51,7 @@
     "@eslint/js": "^10.0.1",
     "@next/eslint-plugin-next": "^16.3.4",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.5",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.4.1",
     "@types/react": "^19.2.18",
@@ -70,6 +71,7 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "prisma": "^6.19.3",
     "secretlint": "^13.0.5",
+    "tailwindcss": "^4.3.3",
     "turbo": "^2.10.12",
     "typescript": "^7.0.2",
     "typescript-eslint": "^8.69.0"

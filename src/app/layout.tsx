@@ -16,7 +16,9 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body className="bg-slate-900 font-sans text-slate-50 antialiased">
+        {children}
+      </body>
     </html>
   )
 }

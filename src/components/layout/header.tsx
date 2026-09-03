@@ -1,15 +1,7 @@
 export function Header() {
   return (
-    <header
-      style={{
-        padding: '1rem 2rem',
-        borderBottom: '1px solid #334155',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}
-    >
-      <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Decknews</h2>
+    <header className="flex items-center justify-between border-b border-slate-700 px-8 py-4">
+      <h2 className="text-xl font-semibold">Decknews</h2>
     </header>
   )
 }
