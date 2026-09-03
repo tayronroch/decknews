@@ -150,6 +150,9 @@ pnpm start
 | `pnpm check`                 | Alias para `pnpm lint:check`                           |
 | `pnpm fix`                   | Alias para `pnpm lint:fix`                             |
 | `pnpm lint:secretlint:check` | Verifica possíveis vazamentos de credenciais no código |
+| `pnpm test`                  | Executa os testes automatizados com Jest               |
+| `pnpm test:watch`            | Executa o Jest em modo watch interativo                |
+| `pnpm test:cov`              | Executa os testes com relatório de cobertura de código |
 
 ---
 
