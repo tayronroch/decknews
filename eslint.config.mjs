@@ -15,12 +15,6 @@ try {
   // fallback
 }
 
-// These are require()'d rather than statically imported so they load AFTER
-// the Module._load patch above runs. ESM `import` statements are hoisted
-// above all other module code, so a static import here would resolve the
-// real (unsupported) TypeScript 7 before the TS6 shim is in place —
-// eslint-plugin-unused-imports eagerly touches @typescript-eslint/eslint-plugin
-// at load time and would otherwise silently fail its TS-aware rule lookup.
 const typescriptParser = require('@typescript-eslint/parser')
 const nextPlugin = require('@next/eslint-plugin-next')
 const reactPlugin = require('eslint-plugin-react')
