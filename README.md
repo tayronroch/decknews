@@ -139,26 +139,28 @@ pnpm start
 
 ## Scripts de Qualidade de Código
 
-| Script                       | Descrição                                                  |
-| :--------------------------- | :--------------------------------------------------------- |
-| `pnpm dev`                   | Inicia o servidor Next.js em modo de desenvolvimento       |
-| `pnpm build`                 | Gera o build otimizado para produção                       |
-| `pnpm start`                 | Inicia o servidor de produção                              |
-| `pnpm lint`                  | Executa a verificação do ESLint via Next.js                |
-| `pnpm lint:check`            | Executa verificação completa de ESLint e Prettier          |
-| `pnpm lint:fix`              | Corrige problemas automáticos de ESLint e Prettier         |
-| `pnpm check`                 | Alias para `pnpm lint:check`                               |
-| `pnpm fix`                   | Alias para `pnpm lint:fix`                                 |
-| `pnpm lint:secretlint:check` | Verifica possíveis vazamentos de credenciais no código     |
-| `pnpm test`                  | Executa os testes automatizados com Jest                   |
-| `pnpm test:watch`            | Executa o Jest em modo watch interativo                    |
-| `pnpm test:cov`              | Executa os testes com relatório de cobertura de código     |
-| `pnpm update:check`          | Visualiza atualizações disponíveis agrupadas por gravidade |
-| `pnpm update:patch`          | Aplica apenas atualizações de correção de bugs (patch)     |
-| `pnpm update:minor`          | Aplica atualizações retrocompatíveis (minor e patch)       |
-| `pnpm update:major`          | Atualização interativa focada em grandes versões (major)   |
-| `pnpm update:interactive`    | Interface interativa para selecionar dependências (ncu -i) |
-| `pnpm update-dev`            | Alias para `pnpm update:interactive`                       |
+| Script                       | Descrição                                                   |
+| :--------------------------- | :---------------------------------------------------------- |
+| `pnpm dev`                   | Inicia o servidor Next.js em modo de desenvolvimento        |
+| `pnpm build`                 | Gera o build otimizado para produção                        |
+| `pnpm start`                 | Inicia o servidor de produção                               |
+| `pnpm lint`                  | Executa a verificação estática com ESLint                   |
+| `pnpm format`                | Formata o código do projeto com Prettier                    |
+| `pnpm typecheck`             | Executa a verificação de tipos do TypeScript (tsc --noEmit) |
+| `pnpm lint:check`            | Executa verificação completa de ESLint e Prettier           |
+| `pnpm lint:fix`              | Corrige problemas automáticos de ESLint e Prettier          |
+| `pnpm check`                 | Alias para `pnpm lint:check`                                |
+| `pnpm fix`                   | Alias para `pnpm lint:fix`                                  |
+| `pnpm lint:secretlint:check` | Verifica possíveis vazamentos de credenciais no código      |
+| `pnpm test`                  | Executa os testes automatizados com Jest                    |
+| `pnpm test:watch`            | Executa o Jest em modo watch interativo                     |
+| `pnpm test:cov`              | Executa os testes com relatório de cobertura de código      |
+| `pnpm update:check`          | Visualiza atualizações disponíveis agrupadas por gravidade  |
+| `pnpm update:patch`          | Aplica apenas atualizações de correção de bugs (patch)      |
+| `pnpm update:minor`          | Aplica atualizações retrocompatíveis (minor e patch)        |
+| `pnpm update:major`          | Atualização interativa focada em grandes versões (major)    |
+| `pnpm update:interactive`    | Interface interativa para selecionar dependências (ncu -i)  |
+| `pnpm update-dev`            | Alias para `pnpm update:interactive`                        |
 
 ---
 
