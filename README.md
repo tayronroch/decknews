@@ -56,7 +56,8 @@ decknews/
 │   │
 │   ├── infra/                       # Adaptadores externos, integrações e infraestrutura
 │   │   ├── database/                # Conexão e cliente centralizado do banco de dados (Prisma singleton)
-│   │   ├── errors/                  # Classes de erros customizados (AppError, NotFoundError, etc.)
+│   │   ├── errors/                  # Hierarquia de erros customizados e tipados (AppError, etc.)
+│   │   ├── http/                    # Adapters e formatadores HTTP (handleApiError)
 │   │   ├── logging/                 # Implementação de logger estruturado
 │   │   └── mail/                    # Serviços e adaptadores de envio de e-mail
 │   │
@@ -137,6 +138,38 @@ Para garantir a solidez das fronteiras arquiteturais, o projeto configura travas
    Acesso direto ao banco/Prisma é restrito à camada de Repositories (src/features/**/repositories/**).
    Services e Route Handlers devem consumir Repositories.
    ```
+
+---
+
+## Tratamento Centralizado de Erros (Error Handling)
+
+A aplicação conta com uma infraestrutura centralizada para tratamento previsível de erros, desacoplando os erros da aplicação da camada de transporte HTTP:
+
+### 1. Classes de Erro da Aplicação (`src/infra/errors/`)
+
+- **`AppError`**: Classe abstrata que obriga a definição de `statusCode` e `code: ErrorCode` tipado via constantes (`ERROR_CODES`), além de suportar a opção nativa `cause` para rastrear a raiz do erro sem expô-la.
+- **Subclasses semânticas**:
+  - `ValidationError` (`400`, `VALIDATION_ERROR`)
+  - `UnauthorizedError` (`401`, `UNAUTHORIZED`)
+  - `ForbiddenError` (`403`, `FORBIDDEN`)
+  - `NotFoundError` (`404`, `NOT_FOUND`)
+  - `ConflictError` (`409`, `CONFLICT`)
+  - `InternalServerError` (`500`, `INTERNAL_SERVER_ERROR`)
+
+### 2. Adapter HTTP (`src/infra/http/handle-api-error.ts`)
+
+Converte erros capturados em `try/catch` de Route Handlers em uma resposta HTTP consistente:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Dados inválidos"
+  }
+}
+```
+
+- **Proteção contra vazamento de detalhes (Zero Leak)**: Qualquer erro inesperado (ex.: falha de rede, erro não capturado ou exceções de infraestrutura) é logado no servidor com seu stack trace completo (`logger.error`), mas o cliente recebe apenas uma resposta HTTP 500 padronizada com mensagem segura, garantindo que dados sensíveis nunca vazem para o cliente.
 
 ---
 
