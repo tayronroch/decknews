@@ -47,3 +47,12 @@ export class InternalServerError extends AppError {
     super(message, 500, ERROR_CODES.INTERNAL_SERVER, options)
   }
 }
+
+export class ServiceUnavailableError extends AppError {
+  constructor(
+    message = 'Serviço temporariamente indisponível',
+    options?: ErrorOptions
+  ) {
+    super(message, 503, ERROR_CODES.SERVICE_UNAVAILABLE, options)
+  }
+}
