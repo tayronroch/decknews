@@ -55,7 +55,7 @@ decknews/
 │   │   └── users/                   # Domínio de usuários e perfis
 │   │
 │   ├── infra/                       # Adaptadores externos, integrações e infraestrutura
-│   │   ├── database/                # Conexão com banco de dados (Prisma client singleton, repositórios base)
+│   │   ├── database/                # Conexão e cliente centralizado do banco de dados (Prisma singleton)
 │   │   ├── errors/                  # Classes de erros customizados (AppError, NotFoundError, etc.)
 │   │   ├── logging/                 # Implementação de logger estruturado
 │   │   └── mail/                    # Serviços e adaptadores de envio de e-mail
@@ -97,12 +97,55 @@ Cada domínio dentro de `src/features/<dominio>` é autossuficiente e encapsula 
 
 ---
 
+## Camada de Acesso a Dados e Padrão Repository
+
+O Decknews adota o **Repository Pattern** em uma estrutura _feature-first_ para desacoplar a camada de negócio (Services) da camada de persistência (Prisma ORM / PostgreSQL).
+
+### Fluxo Unidirecional de Dependência
+
+```text
+Route Handler (API) / Server Action (UI)
+        ↓
+     Service   (src/features/<dominio>/services/)
+        ↓
+   Repository  (src/features/<dominio>/repositories/)
+        ↓
+ infra/database (src/infra/database/ - Prisma Client Singleton)
+        ↓
+     Prisma
+        ↓
+   PostgreSQL
+```
+
+### Responsabilidades de Cada Camada
+
+| Camada             | Local                                  | Responsabilidades                                                                                                                                                                     | O que NÃO deve fazer                                                                                                                  |
+| :----------------- | :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------ |
+| **Service**        | `src/features/<dominio>/services/`     | • Regras de negócio do domínio<br>• Orquestração de múltiplos repositories<br>• Validações de domínio e autorização<br>• Lançamento de erros de domínio (`AppError`, `NotFoundError`) | • **NÃO** acessa o Prisma ou banco de dados diretamente<br>• **NÃO** manipula objetos HTTP (`Request`/`Response`)                     |
+| **Repository**     | `src/features/<dominio>/repositories/` | • Execução de queries (CRUD, agregações, transações com `prisma`)<br>• Mapeamento de dados de persistência<br>• Retorno de dados estruturados ou `null` quando não encontrado         | • **NÃO** contém regra de negócio<br>• **NÃO** lança erros de domínio de alto nível<br>• **NÃO** importa `@prisma/client` diretamente |
+| **Infra Database** | `src/infra/database/`                  | • Inicialização e configuração do Prisma Client<br>• Gerenciamento do singleton no `globalThis` para hot reload                                                                       | • **NÃO** contém repositories de domínio                                                                                              |
+
+### Garantia de Fronteiras via ESLint (`no-restricted-imports`)
+
+Para garantir a solidez das fronteiras arquiteturais, o projeto configura travas estritas com nível de erro (`error`) no ESLint:
+
+1. **`@prisma/client`** é permitido **exclusivamente** em `src/infra/database/**` (e arquivos de testes). Nem mesmo repositories importam `@prisma/client` diretamente.
+2. **`@/infra/database`** é permitido **exclusivamente** na camada de persistência das features (`src/features/**/repositories/**`) e testes.
+3. Se qualquer **Service**, **Route Handler** ou **Componente** tentar importar o banco de dados diretamente, o ESLint quebra o check imediatamente:
+   ```text
+   error: '@/infra/database' import is restricted from being used.
+   Acesso direto ao banco/Prisma é restrito à camada de Repositories (src/features/**/repositories/**).
+   Services e Route Handlers devem consumir Repositories.
+   ```
+
+---
+
 ## 🛠️ Como Executar o Projeto
 
 ### Pré-requisitos
 
-- **Node.js** `>= 20.x`
-- **pnpm** `>= 9.x`
+- **Node.js** `>= 24.x LTS`
+- **pnpm** `>= 10.x`
 
 ### 1. Clonar e Instalar Dependências
 

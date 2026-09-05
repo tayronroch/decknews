@@ -91,11 +91,64 @@ export default [
       'prefer-const': 'off',
       'preserve-caught-error': 'off',
       complexity: ['warn', 10],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@prisma/client',
+              message:
+                'O Prisma Client não deve ser importado diretamente. Acesso ao banco é centralizado em "@/infra/database" e restrito à camada de Repositories.',
+            },
+            {
+              name: '@/infra/database',
+              message:
+                'Acesso direto ao banco/Prisma é restrito à camada de Repositories (src/features/**/repositories/**). Services e Route Handlers devem consumir Repositories.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['@/infra/database/**'],
+              message:
+                'Não acesse submódulos de "@/infra/database" diretamente. Importe a partir de "@/infra/database" exclusivamente dentro de Repositories.',
+            },
+          ],
+        },
+      ],
     },
     settings: {
       react: {
         version: 'detect',
       },
+    },
+  },
+  {
+    files: ['src/infra/database/**'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+  {
+    files: ['src/features/**/repositories/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@prisma/client',
+              message:
+                'Repositories devem importar a instância centralizada de "@/infra/database", e não "@prisma/client" diretamente.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/**/*.spec.ts', 'src/**/*.test.ts', 'tests/**'],
+    rules: {
+      'no-restricted-imports': 'off',
     },
   },
 ]
