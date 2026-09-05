@@ -7,6 +7,7 @@ import {
   ForbiddenError,
   InternalServerError,
   NotFoundError,
+  ServiceUnavailableError,
   UnauthorizedError,
   ValidationError,
 } from '@/infra/errors'
@@ -103,6 +104,21 @@ describe('handleApiError', () => {
       error: {
         code: ERROR_CODES.INTERNAL_SERVER,
         message: 'Erro interno do servidor',
+      },
+    })
+    expect(logger.error).toHaveBeenCalledTimes(1)
+  })
+
+  it('converts ServiceUnavailableError into 503 response and logs it', async () => {
+    const error = new ServiceUnavailableError()
+    const response = handleApiError(error)
+    const body = await response.json()
+
+    expect(response.status).toBe(503)
+    expect(body).toEqual({
+      error: {
+        code: ERROR_CODES.SERVICE_UNAVAILABLE,
+        message: 'Serviço temporariamente indisponível',
       },
     })
     expect(logger.error).toHaveBeenCalledTimes(1)
