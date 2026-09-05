@@ -1,0 +1,35 @@
+name: Automated Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  jest:
+    name: Jest Ubuntu
+    runs-on: ubuntu-latest
+    env:
+      TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - name: Prepare test database URL
+        run: |
+          if [ -z "${TEST_DATABASE_URL:-}" ]; then
+            printf 'TEST_DATABASE_URL=%s://%s:%s@%s:%s/%s\n' \
+              postgresql postgres postgres localhost 5432 decknews_test >> "$GITHUB_ENV"
+          fi
+      - run: pnpm test

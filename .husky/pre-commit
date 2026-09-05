@@ -1,0 +1,4 @@
+if [ -n "$(git diff --cached --name-only --diff-filter=ACMR)" ]; then
+  git diff --cached --name-only --diff-filter=ACMR -z |
+    xargs -0 pnpm exec secretlint --maskSecrets --secretlintignore .gitignore
+fi

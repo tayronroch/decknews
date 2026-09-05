@@ -1,0 +1,34 @@
+packages:
+  - 'config/*'
+  - 'apps/*'
+  - 'packages/*'
+
+overrides:
+  '@typescript-eslint/parser>typescript': 'npm:@typescript/typescript6@^6.0.2'
+  '@typescript-eslint/typescript-estree>typescript': 'npm:@typescript/typescript6@^6.0.2'
+  'typescript-eslint>typescript': 'npm:@typescript/typescript6@^6.0.2'
+  'deepmerge-ts@<8.0.0': '>=8.0.0'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@prisma/client': true
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  '@swc/core': true
+  core-js: true
+  esbuild: true
+  prisma: true
+  sharp: true
+  unrs-resolver: true
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - '@swc/core'
+  - 'core-js'
+  - 'esbuild'
+  - 'prisma'
+  - 'sharp'
+  - 'unrs-resolver'
