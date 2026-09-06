@@ -1,8 +1,11 @@
 /**
  * @jest-environment node
  */
+import { checkDatabaseStatus } from '@/features/status/repositories/status.repository'
 import { ERROR_CODES } from '@/infra/errors'
 import { logger } from '@/infra/logging'
+
+import { GET } from './route'
 
 jest.mock('@/lib/env/server', () => ({
   env: {
@@ -16,9 +19,6 @@ jest.mock('@/lib/env/server', () => ({
 jest.mock('@/features/status/repositories/status.repository', () => ({
   checkDatabaseStatus: jest.fn(),
 }))
-
-import { checkDatabaseStatus } from '@/features/status/repositories/status.repository'
-import { GET } from './route'
 
 const mockCheckDatabaseStatus = jest.mocked(checkDatabaseStatus)
 
