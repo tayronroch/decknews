@@ -18,6 +18,7 @@ describe('env/server', () => {
     process.env.NODE_ENV = 'development'
     process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
     process.env.PORT = '3000'
+    delete process.env.DATABASE_POOL_SIZE
 
     const { env } = await import('./server')
 
