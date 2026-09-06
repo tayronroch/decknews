@@ -12,6 +12,7 @@ const config = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
+  setupFiles: ['<rootDir>/jest.setup.env.ts'],
 }
 
 export default createJestConfig(config)
