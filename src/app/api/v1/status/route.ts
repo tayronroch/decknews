@@ -4,10 +4,11 @@ import { checkDatabaseStatus } from '@/features/status/repositories/status.repos
 import type { StatusResponse } from '@/features/status/types/status-response'
 import { ServiceUnavailableError } from '@/infra/errors'
 import { handleApiError } from '@/infra/http'
+import { env } from '@/lib/env/server'
 
 export async function GET() {
   try {
-    await checkDatabaseStatus().catch((error) => {
+    const dbStatus = await checkDatabaseStatus().catch((error) => {
       throw new ServiceUnavailableError(
         'Serviço temporariamente indisponível',
         {
@@ -21,6 +22,8 @@ export async function GET() {
       updatedAt: new Date().toISOString(),
       database: {
         status: 'healthy',
+        connections: dbStatus.connections,
+        poolLimit: env.DATABASE_POOL_SIZE,
       },
     }
 

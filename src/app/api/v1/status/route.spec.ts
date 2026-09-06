@@ -26,7 +26,7 @@ describe('GET /api/v1/status', () => {
 
   describe('when the database is healthy', () => {
     beforeEach(() => {
-      mockCheckDatabaseStatus.mockResolvedValue(undefined)
+      mockCheckDatabaseStatus.mockResolvedValue({ connections: 3 })
     })
 
     it('returns HTTP 200', async () => {
@@ -50,7 +50,20 @@ describe('GET /api/v1/status', () => {
     it('returns database.status: healthy', async () => {
       const response = await GET()
       const body = await response.json()
-      expect(body.database).toEqual({ status: 'healthy' })
+      expect(body.database.status).toBe('healthy')
+    })
+
+    it('returns database.connections from the repository', async () => {
+      const response = await GET()
+      const body = await response.json()
+      expect(body.database.connections).toBe(3)
+    })
+
+    it('returns database.poolLimit from env', async () => {
+      const response = await GET()
+      const body = await response.json()
+      expect(typeof body.database.poolLimit).toBe('number')
+      expect(body.database.poolLimit).toBeGreaterThan(0)
     })
   })
 

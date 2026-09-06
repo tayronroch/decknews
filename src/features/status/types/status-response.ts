@@ -3,5 +3,7 @@ export type StatusResponse = {
   updatedAt: string
   database: {
     status: 'healthy'
+    connections: number
+    poolLimit: number
   }
 }

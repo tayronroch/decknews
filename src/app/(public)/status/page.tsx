@@ -68,6 +68,13 @@ export default async function StatusPage() {
         </div>
 
         <div className="flex items-center justify-between rounded-md bg-slate-800 px-4 py-3">
+          <dt className="text-sm text-slate-400">Conexões abertas</dt>
+          <dd className="font-mono text-sm text-slate-300">
+            {data.database.connections} / {data.database.poolLimit}
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between rounded-md bg-slate-800 px-4 py-3">
           <dt className="text-sm text-slate-400">Última consulta</dt>
           <dd className="font-mono text-sm text-slate-300">
             {formatTimestamp(data.updatedAt)}

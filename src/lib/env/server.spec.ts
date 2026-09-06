@@ -25,6 +25,7 @@ describe('env/server', () => {
       NODE_ENV: 'development',
       DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
       PORT: 3000,
+      DATABASE_POOL_SIZE: 10,
     })
   })
 
