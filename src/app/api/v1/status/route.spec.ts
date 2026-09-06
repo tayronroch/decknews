@@ -4,13 +4,21 @@
 import { ERROR_CODES } from '@/infra/errors'
 import { logger } from '@/infra/logging'
 
-import { GET } from './route'
+jest.mock('@/lib/env/server', () => ({
+  env: {
+    NODE_ENV: 'test',
+    DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
+    PORT: 3000,
+    DATABASE_POOL_SIZE: 10,
+  },
+}))
 
 jest.mock('@/features/status/repositories/status.repository', () => ({
   checkDatabaseStatus: jest.fn(),
 }))
 
 import { checkDatabaseStatus } from '@/features/status/repositories/status.repository'
+import { GET } from './route'
 
 const mockCheckDatabaseStatus = jest.mocked(checkDatabaseStatus)
 
