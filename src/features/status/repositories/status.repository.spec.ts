@@ -18,10 +18,14 @@ describe('checkDatabaseStatus', () => {
     jest.clearAllMocks()
   })
 
-  it('resolves successfully when the database responds', async () => {
-    jest.mocked(mockPrisma.$queryRaw).mockResolvedValueOnce([{ '?column?': 1 }])
+  it('returns the connection count when the database responds', async () => {
+    jest
+      .mocked(mockPrisma.$queryRaw)
+      .mockResolvedValueOnce([{ connections: 3 }])
 
-    await expect(checkDatabaseStatus()).resolves.toBeUndefined()
+    const result = await checkDatabaseStatus()
+
+    expect(result).toEqual({ connections: 3 })
   })
 
   it('propagates the error when Prisma throws', async () => {
@@ -31,8 +35,10 @@ describe('checkDatabaseStatus', () => {
     await expect(checkDatabaseStatus()).rejects.toThrow('Connection refused')
   })
 
-  it('executes a raw SELECT query against the database', async () => {
-    jest.mocked(mockPrisma.$queryRaw).mockResolvedValueOnce([])
+  it('executes exactly one raw query against the database', async () => {
+    jest
+      .mocked(mockPrisma.$queryRaw)
+      .mockResolvedValueOnce([{ connections: 1 }])
 
     await checkDatabaseStatus()
 
