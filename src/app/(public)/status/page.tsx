@@ -1,6 +1,8 @@
 import type { StatusResponse } from '@/features/status/types/status-response'
 import { env } from '@/lib/env/server'
 
+import { StatusRefresher } from './status-refresher'
+
 async function fetchStatus(): Promise<StatusResponse | null> {
   const baseUrl = env.APP_URL ?? `http://localhost:${env.PORT}`
   const url = `${baseUrl}/api/v1/status`
@@ -32,6 +34,7 @@ export default async function StatusPage() {
   if (!data) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center">
+        <StatusRefresher />
         <h1 className="mb-4 text-2xl font-bold text-red-400">
           Serviço indisponível
         </h1>
@@ -44,6 +47,7 @@ export default async function StatusPage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center">
+      <StatusRefresher />
       <h1 className="mb-8 text-2xl font-bold text-slate-50">
         Status da Aplicação
       </h1>
