@@ -6,6 +6,7 @@ const serverSchema = z.object({
     .default('development'),
   DATABASE_URL: z.string().url(),
   PORT: z.coerce.number().int().positive().default(3000),
+  APP_URL: z.string().url().optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>

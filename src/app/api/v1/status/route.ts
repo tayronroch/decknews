@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server'
 
 import { checkDatabaseStatus } from '@/features/status/repositories/status.repository'
+import type { StatusResponse } from '@/features/status/types/status-response'
 import { ServiceUnavailableError } from '@/infra/errors'
 import { handleApiError } from '@/infra/http'
-
-export type StatusResponse = {
-  status: 'ok'
-  updatedAt: string
-  database: {
-    status: 'healthy'
-  }
-}
 
 export async function GET() {
   try {
