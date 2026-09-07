@@ -1,2 +1,2 @@
 // Repositórios de acesso a dados do domínio de users
-export {}
+export * from './user.repository'
