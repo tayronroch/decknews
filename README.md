@@ -172,8 +172,11 @@ API / JSON string decimal (ex: "89930947499134976")
    - Gerar o ID na camada de aplicação desacopla a criação da entidade do round-trip de persistência, permitindo conhecer o ID antes mesmo de inserir no banco.
    - Evita gargalos de contenção de sequences centralizadas em múltiplos writers futuros.
 
-4. **Multi-instâncias e Configuração de Nós**:
-   - O gerador suporta `workerId` (0 a 31) e `processId` (0 a 31), permitindo até 1024 nós/instâncias emitindo IDs concorrentemente sem risco de colisão.
+4. **Multi-instâncias e Configuração de Nós** (`TsidIdGenerator`, `src/infra/id/`):
+   - **Configuração**: `workerId` e `processId` (5 bits cada, 0 a 31) são passados nas opções do construtor; o padrão é `0` para ambos quando a instância roda sem configuração explícita de nó.
+   - **Limites**: `workerId` e `processId` fora do intervalo `[0, 31]`, ou `epoch` no futuro, lançam `InvalidIdGeneratorConfigError` de forma explícita e síncrona na construção — a instância nunca é criada em estado inválido.
+   - **Clock rollback**: se `Date.now()` retroceder em relação ao último timestamp usado (ex.: ajuste de NTP), `next()` lança `ClockRollbackError` em vez de arriscar reuso/colisão de ID; o chamador decide como reagir (retry, alerta, etc.).
+   - **Risco de colisão entre instâncias**: cada combinação `(workerId, processId)` deve ser única por instância viva simultaneamente; com 5+5 bits há espaço para até 1024 nós concorrentes. A atribuição desses valores por instância/ambiente é responsabilidade operacional (ex.: variável de ambiente por réplica) e ainda não está automatizada — hoje a aplicação roda com uma única instância usando os padrões `(0, 0)`.
 
 5. **Uso em Paginação por Cursor**:
    - Devido à ordenação temporal intrínseca dos IDs, futuras queries de paginação por cursor (`WHERE id < :cursor ORDER BY id DESC LIMIT :limit`) podem ser feitas diretamente pela chave primária sem custo de offset.
