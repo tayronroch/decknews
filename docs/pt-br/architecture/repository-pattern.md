@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./repository-pattern.md">🇧🇷 Português</a> | <a href="../../en/architecture/repository-pattern.md">🇺🇸 English</a>
+</p>
+
 # Camada de Acesso a Dados e Padrão Repository
 
 O Decknews adota o **Repository Pattern** em uma estrutura _feature-first_ para desacoplar a camada de negócio (Services) da camada de persistência (Prisma ORM / PostgreSQL).

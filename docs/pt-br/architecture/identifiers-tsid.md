@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./identifiers-tsid.md">🇧🇷 Português</a> | <a href="../../en/architecture/identifiers-tsid.md">🇺🇸 English</a>
+</p>
+
 # Estratégia Global de Identificadores (TSID / Snowflake de 64 bits)
 
 O Decknews adota uma estratégia centralizada de identificadores de 64 bits gerados pela aplicação (estilo TSID/Twitter Snowflake), em vez de UUIDs ou inteiros autoincrementais do banco.

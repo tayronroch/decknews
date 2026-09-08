@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./validation-zod.md">🇧🇷 Português</a> | <a href="../../en/architecture/validation-zod.md">🇺🇸 English</a>
+</p>
+
 # Estratégia de Validação de Dados (Zod)
 
 O Decknews adota o **Zod** como mecanismo padrão e mandatório para validação de contratos e dados externos.

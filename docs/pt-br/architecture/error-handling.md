@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./error-handling.md">🇧🇷 Português</a> | <a href="../../en/architecture/error-handling.md">🇺🇸 English</a>
+</p>
+
 # Tratamento Centralizado de Erros (Error Handling)
 
 A aplicação conta com uma infraestrutura centralizada para tratamento previsível de erros, desacoplando os erros da aplicação da camada de transporte HTTP.

@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./README.md">🇧🇷 Português</a> | <a href="./README.en.md">🇺🇸 English</a>
+</p>
+
 # Decknews (MiniBlog)
 
 Fundação da aplicação do **MiniBlog**, desenvolvida com **Next.js**, **React** e **TypeScript**, estruturada inicialmente sob uma arquitetura monolítica modular com foco em alta coesão, baixo acoplamento e separação clara entre código compartilhado e código de domínio.
@@ -100,12 +104,12 @@ Cada domínio dentro de `src/features/<dominio>` é autossuficiente e encapsula 
 
 ## Arquitetura e Decisões Técnicas
 
-As decisões e padrões arquiteturais do sistema estão documentados em detalhes na pasta [`docs/architecture/`](./docs/architecture/):
+As decisões e padrões arquiteturais do sistema estão documentados em detalhes na pasta [`docs/pt-br/architecture/`](./docs/pt-br/architecture/):
 
-- [**Padrão Repository & Acesso a Dados**](./docs/architecture/repository-pattern.md): Fluxo unidirecional de dependência (`Route` ➔ `Service` ➔ `Repository` ➔ `Prisma`), responsabilidades das camadas e garantia de fronteiras via ESLint (`no-restricted-imports`).
-- [**Estratégia Global de Identificadores (TSID / Snowflake de 64 bits)**](./docs/architecture/identifiers-tsid.md): Estrutura de 64 bits, motivações de design (B-Tree, joins, índices compactos), transporte como string na API, suporte a cursor pagination e configuração de nós.
-- [**Tratamento Centralizado de Erros**](./docs/architecture/error-handling.md): Hierarquia de erros com `AppError`, conversor HTTP (`handleApiError`) e proteção contra vazamento de detalhes internos (Zero Leak).
-- [**Estratégia de Validação de Dados (Zod)**](./docs/architecture/validation-zod.md): Validação na borda com `parseJsonBody`, proteção contra _mass assignment_ (`.strict()`), tipos derivados (`z.infer`) e separação clara entre validação estrutural e regras de negócio.
+- [**Padrão Repository & Acesso a Dados**](./docs/pt-br/architecture/repository-pattern.md): Fluxo unidirecional de dependência (`Route` ➔ `Service` ➔ `Repository` ➔ `Prisma`), responsabilidades das camadas e garantia de fronteiras via ESLint (`no-restricted-imports`).
+- [**Estratégia Global de Identificadores (TSID / Snowflake de 64 bits)**](./docs/pt-br/architecture/identifiers-tsid.md): Estrutura de 64 bits, motivações de design (B-Tree, joins, índices compactos), transporte como string na API, suporte a cursor pagination e configuração de nós.
+- [**Tratamento Centralizado de Erros**](./docs/pt-br/architecture/error-handling.md): Hierarquia de erros com `AppError`, conversor HTTP (`handleApiError`) e proteção contra vazamento de detalhes internos (Zero Leak).
+- [**Estratégia de Validação de Dados (Zod)**](./docs/pt-br/architecture/validation-zod.md): Validação na borda com `parseJsonBody`, proteção contra _mass assignment_ (`.strict()`), tipos derivados (`z.infer`) e separação clara entre validação estrutural e regras de negócio.
 
 ---
 
