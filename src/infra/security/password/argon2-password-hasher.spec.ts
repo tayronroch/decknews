@@ -155,6 +155,7 @@ describe('Argon2PasswordHasher', () => {
     })
 
     it('ensures error messages never leak the pepper value (Zero Leak)', () => {
+      expect.assertions(4)
       const secretPepper = 'secret-pepper-not-to-be-leaked-12345'
       try {
         new Argon2PasswordHasher({
