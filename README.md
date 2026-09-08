@@ -139,10 +139,13 @@ Para garantir a solidez das fronteiras arquiteturais, o projeto configura travas
    Services e Route Handlers devem consumir Repositories.
    ```
 
-### Geração de ID e Ausência de Registro
+### Diretrizes e Regras de Repositories
 
-- **Repository recebe o ID já gerado** pela camada superior — `IdGenerator.next()` é chamado no Service, nunca dentro do Repository (ver [Estratégia Global de Identificadores](#estratégia-global-de-identificadores-tsid--snowflake-de-64-bits)).
-- **Ausência de registro é representada como `null`**, nunca como exceção — decidir se isso vira um erro HTTP (404) é papel do Service.
+- **Services não acessam Prisma diretamente**: toda persistência é mediada exclusivamente por Repositories.
+- **Repository não contém regras de negócio**: apenas persistência, consultas e mapeamento de dados.
+- **Repository retorna tipos próprios da feature**: registros são mapeados para tipos da feature (ex.: `UserRecord`) — tipos do Prisma não devem vazar para os Services.
+- **Repository recebe IDs já gerados** pela camada superior: `IdGenerator.next()` é chamado no Service, nunca dentro do Repository (ver [Estratégia Global de Identificadores](#estratégia-global-de-identificadores-tsid--snowflake-de-64-bits)).
+- **Ausência de registro é representada como `null`**, nunca como exceção: a conversão de ausência para `NotFoundError` pertence ao Service.
 - Exemplo de referência: `src/features/users/repositories/user.repository.ts`.
 
 ---
