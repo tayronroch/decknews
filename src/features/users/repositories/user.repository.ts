@@ -3,7 +3,8 @@ import type {
   UserRecord,
   UserRole,
 } from '@/features/users/types'
-import { prisma } from '@/infra/database'
+import { getUniqueConstraintFields, prisma } from '@/infra/database'
+import { UniqueConstraintError } from '@/shared/errors/persistence'
 
 /**
  * Persisted user shape as returned by the Prisma client, described structurally
@@ -35,6 +36,12 @@ function toUserRecord(user: PersistedUser): UserRecord {
   }
 }
 
+export interface UserRepository {
+  findUserById(id: bigint): Promise<UserRecord | null>
+  findUserByEmail(email: string): Promise<UserRecord | null>
+  createUser(input: CreateUserRepositoryInput): Promise<UserRecord>
+}
+
 export async function findUserById(id: bigint): Promise<UserRecord | null> {
   const user = await prisma.user.findUnique({ where: { id } })
   return user ? toUserRecord(user) : null
@@ -50,13 +57,31 @@ export async function findUserByEmail(
 export async function createUser(
   input: CreateUserRepositoryInput
 ): Promise<UserRecord> {
-  const user = await prisma.user.create({
-    data: {
-      id: input.id,
-      name: input.name,
-      email: input.email,
-      passwordHash: input.passwordHash,
-    },
-  })
-  return toUserRecord(user)
+  try {
+    const user = await prisma.user.create({
+      data: {
+        id: input.id,
+        name: input.name,
+        email: input.email,
+        passwordHash: input.passwordHash,
+      },
+    })
+    return toUserRecord(user)
+  } catch (error) {
+    const fields = getUniqueConstraintFields(error)
+
+    if (fields !== null) {
+      throw new UniqueConstraintError(fields, {
+        cause: error,
+      })
+    }
+
+    throw error
+  }
+}
+
+export const userRepository: UserRepository = {
+  findUserById,
+  findUserByEmail,
+  createUser,
 }
