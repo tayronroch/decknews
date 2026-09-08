@@ -39,6 +39,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.2.0",
     "@prisma/client": "^6.19.3",
     "@sapphire/snowflake": "^3.5.5",
     "next": "^16.3.4",

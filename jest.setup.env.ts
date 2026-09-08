@@ -15,3 +15,4 @@
 process.env.DATABASE_URL ??= 'postgresql://localhost:5432/decknews_test'
 process.env.PORT ??= '3000'
 process.env.DATABASE_POOL_SIZE ??= '5'
+process.env.PASSWORD_PEPPER ??= 'jest-setup-test-pepper-token-123456'
