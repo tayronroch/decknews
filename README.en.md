@@ -108,6 +108,7 @@ Detailed architectural decisions and patterns are documented in [`docs/en/archit
 
 - [**Repository Pattern & Data Access**](./docs/en/architecture/repository-pattern.md): Unidirectional dependency flow (`Route` ➔ `Service` ➔ `Repository` ➔ `Prisma`), layer responsibilities, and boundary enforcement via ESLint (`no-restricted-imports`).
 - [**Global Identifier Strategy (64-bit TSID / Snowflake)**](./docs/en/architecture/identifiers-tsid.md): 64-bit layout, design rationale (B-Tree efficiency, compact joins and indexes), string serialization in API responses, cursor pagination, and node configuration.
+- [**Secure Password Storage and Hashing (Argon2id + Pepper)**](./docs/en/architecture/password-hashing.md): Cryptographic pipeline using HMAC-SHA-256 + Argon2id with OWASP parameters (64 MiB), defense-in-depth via secret application pepper outside the database, zero-downtime pepper rotation (`verifyWithRehash`), and Zero Leak policy.
 - [**Centralized Error Handling**](./docs/en/architecture/error-handling.md): Typed error hierarchy with `AppError`, HTTP response adapter (`handleApiError`), and Zero Detail Leakage in production.
 - [**Data Validation Strategy (Zod)**](./docs/en/architecture/validation-zod.md): Edge validation with `parseJsonBody`, mass assignment protection (`.strict()`), inferred types (`z.infer`), and clean boundary separation between transport and business rules.
 

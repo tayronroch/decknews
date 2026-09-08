@@ -108,6 +108,7 @@ As decisões e padrões arquiteturais do sistema estão documentados em detalhes
 
 - [**Padrão Repository & Acesso a Dados**](./docs/pt-br/architecture/repository-pattern.md): Fluxo unidirecional de dependência (`Route` ➔ `Service` ➔ `Repository` ➔ `Prisma`), responsabilidades das camadas e garantia de fronteiras via ESLint (`no-restricted-imports`).
 - [**Estratégia Global de Identificadores (TSID / Snowflake de 64 bits)**](./docs/pt-br/architecture/identifiers-tsid.md): Estrutura de 64 bits, motivações de design (B-Tree, joins, índices compactos), transporte como string na API, suporte a cursor pagination e configuração de nós.
+- [**Armazenamento e Hashing Seguro de Senhas (Argon2id + Pepper)**](./docs/pt-br/architecture/password-hashing.md): Pipeline criptográfico HMAC-SHA-256 + Argon2id com parâmetros OWASP (64 MiB), defesa em profundidade com pepper secreto fora do banco, rotação zero-downtime (`verifyWithRehash`) e política Zero Leak.
 - [**Tratamento Centralizado de Erros**](./docs/pt-br/architecture/error-handling.md): Hierarquia de erros com `AppError`, conversor HTTP (`handleApiError`) e proteção contra vazamento de detalhes internos (Zero Leak).
 - [**Estratégia de Validação de Dados (Zod)**](./docs/pt-br/architecture/validation-zod.md): Validação na borda com `parseJsonBody`, proteção contra _mass assignment_ (`.strict()`), tipos derivados (`z.infer`) e separação clara entre validação estrutural e regras de negócio.
 
