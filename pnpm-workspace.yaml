@@ -32,3 +32,5 @@ onlyBuiltDependencies:
   - 'prisma'
   - 'sharp'
   - 'unrs-resolver'
+
+ignoreWorkspaceRootCheck: true
