@@ -1,2 +1,1 @@
-// Schemas de validação Zod do domínio de autenticação
-export {}
+export * from './register.schema'
