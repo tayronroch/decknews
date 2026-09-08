@@ -2,9 +2,15 @@
  * @jest-environment node
  */
 import type { CreateUserRepositoryInput } from '@/features/users/types'
-import { prisma } from '@/infra/database'
+import { getUniqueConstraintFields, prisma } from '@/infra/database'
+import { UniqueConstraintError } from '@/shared/errors/persistence'
 
-import { createUser, findUserByEmail, findUserById } from './user.repository'
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  userRepository,
+} from './user.repository'
 
 jest.mock('@/infra/database', () => ({
   prisma: {
@@ -13,9 +19,11 @@ jest.mock('@/infra/database', () => ({
       create: jest.fn(),
     },
   },
+  getUniqueConstraintFields: jest.fn(),
 }))
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockGetUniqueConstraintFields = jest.mocked(getUniqueConstraintFields)
 
 const dbUser = {
   id: 123456789012345678n,
@@ -30,6 +38,7 @@ const dbUser = {
 describe('UserRepository', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockGetUniqueConstraintFields.mockReturnValue(null)
   })
 
   describe('findUserById', () => {
@@ -147,6 +156,41 @@ describe('UserRepository', () => {
       expect(withPassword).toBeDefined()
       expect(withRole).toBeDefined()
     })
+
+    it('throws UniqueConstraintError when Prisma reports a unique constraint violation', async () => {
+      const p2002Error = new Error('Unique constraint failed')
+      jest.mocked(mockPrisma.user.create).mockRejectedValueOnce(p2002Error)
+      mockGetUniqueConstraintFields.mockReturnValueOnce(['email'])
+
+      await expect(createUser(input)).rejects.toThrow(UniqueConstraintError)
+    })
+
+    it('attaches the violation fields and original cause to UniqueConstraintError', async () => {
+      const p2002Error = new Error('Unique constraint failed')
+      jest.mocked(mockPrisma.user.create).mockRejectedValueOnce(p2002Error)
+      mockGetUniqueConstraintFields.mockReturnValueOnce(['email'])
+
+      let thrownError: unknown = null
+      try {
+        await createUser(input)
+      } catch (error) {
+        thrownError = error
+      }
+
+      expect(thrownError).toBeInstanceOf(UniqueConstraintError)
+      const constraintError = thrownError as UniqueConstraintError
+      expect(constraintError.fields).toEqual(['email'])
+      expect(constraintError.cause).toBe(p2002Error)
+      expect(mockGetUniqueConstraintFields).toHaveBeenCalledWith(p2002Error)
+    })
+  })
+
+  describe('userRepository singleton', () => {
+    it('exposes findUserById, findUserByEmail, and createUser methods', () => {
+      expect(userRepository.findUserById).toBe(findUserById)
+      expect(userRepository.findUserByEmail).toBe(findUserByEmail)
+      expect(userRepository.createUser).toBe(createUser)
+    })
   })
 
   describe('error propagation', () => {
@@ -176,14 +220,11 @@ describe('UserRepository', () => {
     })
 
     it('propagates unexpected Prisma errors from createUser without translating them', async () => {
-      const dbError = new Error(
-        'Unique constraint failed on the fields: (`email`)'
-      )
+      const dbError = new Error('Connection refused')
       jest.mocked(mockPrisma.user.create).mockRejectedValueOnce(dbError)
+      mockGetUniqueConstraintFields.mockReturnValueOnce(null)
 
-      await expect(createUser(input)).rejects.toThrow(
-        'Unique constraint failed'
-      )
+      await expect(createUser(input)).rejects.toThrow('Connection refused')
     })
   })
 })
