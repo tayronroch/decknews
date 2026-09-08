@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { paginationSchema } from './index'
+import { idParamSchema, paginationSchema } from './index'
 
 describe('Validation primitives', () => {
   describe('paginationSchema', () => {
@@ -67,6 +67,32 @@ describe('Validation primitives', () => {
 
       const result = strictExampleSchema.safeParse(invalidPayload)
       expect(result.success).toBe(false)
+    })
+  })
+
+  describe('idParamSchema', () => {
+    it('accepts valid 64-bit decimal string IDs', () => {
+      const validId = '89930947499134976'
+      const result = idParamSchema.safeParse(validId)
+      expect(result.success).toBe(true)
+    })
+
+    it('rejects non-numeric string IDs (e.g. UUID, alphanumeric)', () => {
+      expect(idParamSchema.safeParse('123-abc').success).toBe(false)
+      expect(
+        idParamSchema.safeParse('550e8400-e29b-41d4-a716-446655440000').success
+      ).toBe(false)
+      expect(idParamSchema.safeParse('abc').success).toBe(false)
+    })
+
+    it('rejects zero or negative IDs', () => {
+      expect(idParamSchema.safeParse('0').success).toBe(false)
+      expect(idParamSchema.safeParse('-10').success).toBe(false)
+    })
+
+    it('rejects IDs exceeding PostgreSQL signed 64-bit BIGINT max', () => {
+      const tooLarge = '9223372036854775808' // 2^63
+      expect(idParamSchema.safeParse(tooLarge).success).toBe(false)
     })
   })
 })
