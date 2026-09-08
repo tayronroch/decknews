@@ -6,8 +6,10 @@ import {
   DEFAULT_MEMORY_COST,
   DEFAULT_PARALLELISM,
   DEFAULT_TIME_COST,
-} from './argon2-password-hasher'
-import { InvalidHasherConfigError, InvalidPepperError } from './errors'
+  InvalidHasherConfigError,
+  InvalidPepperError,
+  passwordHasher,
+} from './index'
 
 describe('Argon2PasswordHasher', () => {
   const currentPepper = 'test-current-pepper-key-12345'
@@ -153,13 +155,31 @@ describe('Argon2PasswordHasher', () => {
     })
 
     it('ensures error messages never leak the pepper value (Zero Leak)', () => {
-      const secretPepper = 'secret-pepper-not-to-be-leaked'
+      const secretPepper = 'secret-pepper-not-to-be-leaked-12345'
+      try {
+        new Argon2PasswordHasher({
+          pepper: secretPepper,
+          memoryCost: -1,
+        })
+      } catch (error) {
+        expect((error as Error).message).not.toContain(secretPepper)
+      }
+
+      try {
+        new Argon2PasswordHasher({
+          pepper: secretPepper,
+          previousPeppers: ['short'],
+        })
+      } catch (error) {
+        expect((error as Error).message).not.toContain(secretPepper)
+        expect((error as Error).message).not.toContain('short')
+      }
+
       try {
         new Argon2PasswordHasher({
           pepper: 'short',
         })
       } catch (error) {
-        expect((error as Error).message).not.toContain(secretPepper)
         expect((error as Error).message).not.toContain('short')
       }
     })
@@ -352,6 +372,18 @@ describe('Argon2PasswordHasher', () => {
         valid: false,
         needsRehash: false,
       })
+    })
+  })
+
+  describe('passwordHasher singleton (index.ts)', () => {
+    it('exports passwordHasher singleton as an instance of Argon2PasswordHasher', () => {
+      expect(passwordHasher).toBeInstanceOf(Argon2PasswordHasher)
+    })
+
+    it('implements PasswordHasher interface with hash, verify, and verifyWithRehash methods', () => {
+      expect(typeof passwordHasher.hash).toBe('function')
+      expect(typeof passwordHasher.verify).toBe('function')
+      expect(typeof passwordHasher.verifyWithRehash).toBe('function')
     })
   })
 })
