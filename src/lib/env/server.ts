@@ -8,6 +8,8 @@ const serverSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   APP_URL: z.string().url().optional(),
   DATABASE_POOL_SIZE: z.coerce.number().int().positive().default(10),
+  PASSWORD_PEPPER: z.string().min(16),
+  PASSWORD_PEPPER_PREVIOUS: z.string().min(16).optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>

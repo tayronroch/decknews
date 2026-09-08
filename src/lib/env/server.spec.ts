@@ -27,6 +27,7 @@ describe('env/server', () => {
       DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
       PORT: 3000,
       DATABASE_POOL_SIZE: 10,
+      PASSWORD_PEPPER: 'jest-setup-test-pepper-token-123456',
     })
   })
 
@@ -44,5 +45,35 @@ describe('env/server', () => {
     process.env.PORT = 'not-a-number'
 
     await expect(import('./server')).rejects.toThrow(/PORT/)
+  })
+
+  it('throws when PASSWORD_PEPPER is missing', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    delete process.env.PASSWORD_PEPPER
+
+    await expect(import('./server')).rejects.toThrow(/PASSWORD_PEPPER/)
+  })
+
+  it('throws when PASSWORD_PEPPER is shorter than 16 characters', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    process.env.PASSWORD_PEPPER = 'short-pepper'
+
+    await expect(import('./server')).rejects.toThrow(/PASSWORD_PEPPER/)
+  })
+
+  it('parses PASSWORD_PEPPER_PREVIOUS when provided', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    process.env.PASSWORD_PEPPER = 'jest-setup-test-pepper-token-123456'
+    process.env.PASSWORD_PEPPER_PREVIOUS = 'previous-pepper-token-123456'
+
+    const { env } = await import('./server')
+
+    expect(env.PASSWORD_PEPPER_PREVIOUS).toBe('previous-pepper-token-123456')
   })
 })
