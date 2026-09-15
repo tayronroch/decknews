@@ -33,7 +33,8 @@ decknews/
 │
 ├── infra/                           # Orquestração local e scripts de serviços
 │   ├── scripts/                     # Scripts de automação (wait-for-postgres, dev)
-│   └── compose.yaml                 # Configuração do PostgreSQL 17 (Docker Compose)
+│   ├── compose.yaml                 # Aplicação Next.js em container (produção)
+│   └── database.compose.yaml        # PostgreSQL 17 para desenvolvimento local
 │
 ├── prisma/                          # Modelagem do banco de dados e migrações
 │   └── schema.prisma
@@ -167,6 +168,8 @@ pnpm start
 | `pnpm services:down`          | Para e remove os containers e redes de suporte              |
 | `pnpm services:stop`          | Para a execução dos containers sem remover os dados         |
 | `pnpm services:wait:database` | Aguarda o PostgreSQL estar pronto para aceitar conexões     |
+| `pnpm app:up`                 | Gera e inicia o container da aplicação em modo produção     |
+| `pnpm app:down`               | Para e remove o container da aplicação                      |
 | `pnpm build`                  | Gera o build otimizado para produção                        |
 | `pnpm start`                  | Inicia o servidor de produção                               |
 | `pnpm lint`                   | Executa a verificação estática com ESLint                   |
@@ -186,6 +189,20 @@ pnpm start
 | `pnpm update:major`           | Atualização interativa focada em grandes versões (major)    |
 | `pnpm update:interactive`     | Interface interativa para selecionar dependências (ncu -i)  |
 | `pnpm update-dev`             | Alias para `pnpm update:interactive`                        |
+
+### Execução em container
+
+`pnpm app:up` usa `infra/compose.yaml` e inicia apenas a aplicação Next.js. A
+conexão de banco é fornecida por `DATABASE_URL` no arquivo `.env`, portanto deve
+apontar para uma instância PostgreSQL já acessível pelo container.
+
+Em produção, a aplicação força `sslmode=require` na conexão PostgreSQL. A URL
+deve usar um host acessível pelo container e, se o provedor exigir certificados
+específicos, eles também devem ser disponibilizados ao container.
+
+O banco de desenvolvimento é isolado em `infra/database.compose.yaml` e continua
+sendo iniciado automaticamente por `pnpm dev`; não faz parte do Compose da
+aplicação.
 
 ---
 

@@ -1,5 +1,6 @@
 import type {
   CreateUserRepositoryInput,
+  UserAuthRecord,
   UserRecord,
   UserRole,
 } from '@/features/users/types'
@@ -14,11 +15,28 @@ type PersistedUser = {
   id: bigint
   name: string
   email: string
-  passwordHash: string
   role: string
   createdAt: Date
   updatedAt: Date
 }
+
+type PersistedAuthUser = PersistedUser & {
+  passwordHash: string
+}
+
+const USER_PUBLIC_FIELDS = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+} as const
+
+const USER_AUTH_FIELDS = {
+  ...USER_PUBLIC_FIELDS,
+  passwordHash: true,
+} as const
 
 /**
  * Maps the raw persistence result to the feature's own contract, so any field
@@ -29,8 +47,19 @@ function toUserRecord(user: PersistedUser): UserRecord {
     id: user.id,
     name: user.name,
     email: user.email,
-    passwordHash: user.passwordHash,
     role: user.role as UserRole,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  }
+}
+
+function toUserAuthRecord(user: PersistedAuthUser): UserAuthRecord {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role as UserRole,
+    passwordHash: user.passwordHash,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   }
@@ -39,19 +68,47 @@ function toUserRecord(user: PersistedUser): UserRecord {
 export interface UserRepository {
   findUserById(id: bigint): Promise<UserRecord | null>
   findUserByEmail(email: string): Promise<UserRecord | null>
+  findUserAuthByEmail(email: string): Promise<UserAuthRecord | null>
+  updatePasswordHash(userId: bigint, passwordHash: string): Promise<void>
   createUser(input: CreateUserRepositoryInput): Promise<UserRecord>
 }
 
 export async function findUserById(id: bigint): Promise<UserRecord | null> {
-  const user = await prisma.user.findUnique({ where: { id } })
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: USER_PUBLIC_FIELDS,
+  })
   return user ? toUserRecord(user) : null
 }
 
 export async function findUserByEmail(
   email: string
 ): Promise<UserRecord | null> {
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: USER_PUBLIC_FIELDS,
+  })
   return user ? toUserRecord(user) : null
+}
+
+export async function findUserAuthByEmail(
+  email: string
+): Promise<UserAuthRecord | null> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: USER_AUTH_FIELDS,
+  })
+  return user ? toUserAuthRecord(user) : null
+}
+
+export async function updatePasswordHash(
+  userId: bigint,
+  passwordHash: string
+): Promise<void> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  })
 }
 
 export async function createUser(
@@ -65,6 +122,7 @@ export async function createUser(
         email: input.email,
         passwordHash: input.passwordHash,
       },
+      select: USER_PUBLIC_FIELDS,
     })
     return toUserRecord(user)
   } catch (error) {
@@ -83,5 +141,7 @@ export async function createUser(
 export const userRepository: UserRepository = {
   findUserById,
   findUserByEmail,
+  findUserAuthByEmail,
+  updatePasswordHash,
   createUser,
 }

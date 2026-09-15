@@ -33,7 +33,8 @@ decknews/
 │
 ├── infra/                           # Local orchestration and service scripts
 │   ├── scripts/                     # Automation scripts (wait-for-postgres, dev)
-│   └── compose.yaml                 # PostgreSQL 17 configuration (Docker Compose)
+│   ├── compose.yaml                 # Containerized Next.js application (production)
+│   └── database.compose.yaml        # PostgreSQL 17 for local development
 │
 ├── prisma/                          # Database schema modeling and migrations
 │   └── schema.prisma
@@ -167,6 +168,8 @@ pnpm start
 | `pnpm services:down`          | Stops and removes supporting containers and networks                        |
 | `pnpm services:stop`          | Stops containers without removing persistent data                           |
 | `pnpm services:wait:database` | Waits until PostgreSQL is ready to accept connections                       |
+| `pnpm app:up`                 | Builds and starts the application container in production mode              |
+| `pnpm app:down`               | Stops and removes the application container                                 |
 | `pnpm build`                  | Generates optimized production build                                        |
 | `pnpm start`                  | Starts production server                                                    |
 | `pnpm lint`                   | Runs static analysis with ESLint                                            |
@@ -186,6 +189,20 @@ pnpm start
 | `pnpm update:major`           | Interactive major version update                                            |
 | `pnpm update:interactive`     | Interactive dependency selection (`ncu -i`)                                 |
 | `pnpm update-dev`             | Alias for `pnpm update:interactive`                                         |
+
+### Running in a container
+
+`pnpm app:up` uses `infra/compose.yaml` and starts only the Next.js application.
+The database connection comes from `DATABASE_URL` in `.env`, so it must point to
+a PostgreSQL instance reachable from the container.
+
+In production, the application forces `sslmode=require` on the PostgreSQL
+connection. The URL must use a host reachable from the container and, if the
+provider requires specific certificates, they must also be made available to it.
+
+The development database is isolated in `infra/database.compose.yaml` and is
+still started automatically by `pnpm dev`; it is not part of the application
+Compose file.
 
 ---
 

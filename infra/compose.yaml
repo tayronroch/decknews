@@ -1,14 +1,13 @@
 services:
-  database:
-    container_name: decknews-dev-postgres
-    image: postgres:17-alpine
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
     env_file:
       - ../.env
+    environment:
+      NODE_ENV: production
     ports:
-      - '5430:5432'
-    volumes:
-      - decknews_db_data:/var/lib/postgresql/data
-    restart: always
-
-volumes:
-  decknews_db_data:
+      - '3000:3000'
+    init: true
+    restart: unless-stopped

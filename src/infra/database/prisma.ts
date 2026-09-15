@@ -19,6 +19,12 @@ function buildDatabaseUrl(): string {
     url.searchParams.set('pool_timeout', '10')
   }
 
+  // Local PostgreSQL does not use TLS. Every production connection must,
+  // however, require it even when the supplied connection string omits it.
+  if (env.NODE_ENV === 'production') {
+    url.searchParams.set('sslmode', 'require')
+  }
+
   return url.toString()
 }
 
