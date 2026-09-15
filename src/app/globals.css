@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans:
@@ -13,6 +13,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: #fafaf8;
   --foreground: #111315;
   --card: #ffffff;
@@ -46,6 +47,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: #0f1011;
   --foreground: #f4f4f3;
   --card: #141617;
@@ -140,4 +142,51 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+@supports (view-transition-name: root) {
+  html {
+    view-transition-name: root;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+
+  ::view-transition-new(root) {
+    z-index: 2;
+  }
+}
+
+html.theme-reveal-active * {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 320ms;
+  transition-timing-function: ease;
+}
+
+html.theme-reveal-active body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: var(--theme-reveal-color);
+  -webkit-clip-path: circle(0% at var(--theme-reveal-x) var(--theme-reveal-y));
+  clip-path: circle(0% at var(--theme-reveal-x) var(--theme-reveal-y));
+  animation: theme-reveal-clip 860ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes theme-reveal-clip {
+  to {
+    -webkit-clip-path: circle(
+      150% at var(--theme-reveal-x) var(--theme-reveal-y)
+    );
+    clip-path: circle(150% at var(--theme-reveal-x) var(--theme-reveal-y));
+  }
 }

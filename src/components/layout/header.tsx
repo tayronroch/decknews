@@ -6,6 +6,7 @@ import * as React from 'react'
 
 import { SearchDialog } from '@/components/home/search-dialog'
 import { GithubIcon, LinkedinIcon } from '@/components/home/social-links'
+import { ThemeToggle } from '@/components/theme'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -86,8 +87,8 @@ export function Header({ className }: HeaderProps) {
             </Link>
           </nav>
 
-          {/* Ferramentas: Social (GitHub, LinkedIn) + Busca + Divisor + Entrar */}
-          <div className="flex items-center gap-2.5">
+          {/* Ferramentas: Social + Tema + Busca + Divisor + Entrar */}
+          <div className="flex items-center gap-2">
             <a
               href="https://github.com/tayronroch"
               target="_blank"
@@ -108,6 +109,8 @@ export function Header({ className }: HeaderProps) {
               <LinkedinIcon className="size-4" />
             </a>
 
+            <ThemeToggle />
+
             <SearchDialog />
 
             <Separator orientation="vertical" className="bg-border mx-1 h-4" />
@@ -115,19 +118,19 @@ export function Header({ className }: HeaderProps) {
             <Button
               asChild
               size="sm"
-              variant="default"
-              className="h-8 gap-1.5 rounded-xs px-3 font-mono text-xs"
+              variant="outline"
+              className="border-border/80 bg-background hover:bg-muted/80 hover:border-foreground/40 text-foreground h-8 cursor-pointer gap-1.5 rounded-xs px-3 font-mono text-xs shadow-none transition-colors"
             >
-              <Link href="/login">
-                <span>Entrar</span>
-                <ArrowUpRight className="size-3.5" />
+              <Link href="/login" className="flex items-center gap-1.5">
+                <span className="text-foreground font-medium">Entrar</span>
+                <ArrowUpRight className="text-muted-foreground size-3.5" />
               </Link>
             </Button>
           </div>
         </div>
 
         {/* Mobile controls */}
-        <div className="flex items-center gap-1 sm:gap-2 md:hidden">
+        <div className="flex items-center gap-1 sm:gap-1.5 md:hidden">
           <a
             href="https://github.com/tayronroch"
             target="_blank"
@@ -147,6 +150,8 @@ export function Header({ className }: HeaderProps) {
           >
             <LinkedinIcon className="size-4" />
           </a>
+
+          <ThemeToggle />
 
           <SearchDialog />
 
@@ -198,13 +203,20 @@ export function Header({ className }: HeaderProps) {
                     [ 03. sobre ]
                   </Link>
                 </nav>
+
+                <div className="border-border/70 border-t pt-4">
+                  <span className="text-muted-foreground mb-2 block font-mono text-[10px] tracking-wider uppercase">
+                    {'// APARÊNCIA'}
+                  </span>
+                  <ThemeToggle showLabel />
+                </div>
               </div>
 
               <div className="border-border flex flex-col gap-3 border-t pt-6">
                 <Button
                   asChild
-                  variant="default"
-                  className="w-full justify-center gap-2 rounded-xs font-mono text-xs"
+                  variant="outline"
+                  className="border-border/80 text-foreground hover:bg-muted/80 w-full justify-center gap-2 rounded-xs font-mono text-xs"
                 >
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                     <span>Entrar no sistema</span>

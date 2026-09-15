@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ReactNode } from 'react'
 
+import { ThemeProvider } from '@/components/theme'
 import { cn } from '@/lib/utils'
 
 const geistSans = Geist({
@@ -37,7 +38,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
         className="bg-background text-foreground selection:text-foreground min-h-screen font-sans antialiased selection:bg-[#879b8f]/20"
         suppressHydrationWarning
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
