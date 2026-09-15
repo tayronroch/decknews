@@ -26,3 +26,20 @@ Decknews adopts **Zod** as its standard, mandatory engine for external data and 
 - **Schema Organization**:
   - Shared primitive schemas in `src/lib/validation/` (e.g., `paginationSchema` with coercion and `max(100)`).
   - Domain-specific schemas in `src/features/<domain>/schemas/` (e.g., `create-post.schema.ts`).
+
+---
+
+## 3. User registration
+
+`POST /api/v1/auth/register` validates its body with `registerSchema` before
+calling the use case. The contract accepts only `name`, `email`, and `password`:
+
+- `name` is trimmed and must contain 2 to 100 characters;
+- `email` only receives trimming and lowercasing;
+- `password` must contain 12 to 256 characters and is not transformed.
+
+The schema is strict: fields such as `id`, `role`, `passwordHash`, and timestamps
+are rejected with `400 VALIDATION_ERROR`. After validation, the route delegates
+creation to the service; its `201 Created` response exposes only public user
+data, with the identifier serialized as a string. Registration does not start a
+session.
