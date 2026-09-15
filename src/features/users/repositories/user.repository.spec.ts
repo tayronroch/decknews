@@ -7,8 +7,10 @@ import { UniqueConstraintError } from '@/shared/errors/persistence'
 
 import {
   createUser,
+  findUserAuthByEmail,
   findUserByEmail,
   findUserById,
+  updatePasswordHash,
   userRepository,
 } from './user.repository'
 
@@ -17,6 +19,7 @@ jest.mock('@/infra/database', () => ({
     user: {
       findUnique: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
     },
   },
   getUniqueConstraintFields: jest.fn(),
@@ -24,6 +27,20 @@ jest.mock('@/infra/database', () => ({
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
 const mockGetUniqueConstraintFields = jest.mocked(getUniqueConstraintFields)
+
+const expectedPublicSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+}
+
+const expectedAuthSelect = {
+  ...expectedPublicSelect,
+  passwordHash: true,
+}
 
 const dbUser = {
   id: 123456789012345678n,
@@ -35,6 +52,15 @@ const dbUser = {
   updatedAt: new Date('2026-01-01T00:00:00.000Z'),
 }
 
+const publicUser = {
+  id: dbUser.id,
+  name: dbUser.name,
+  email: dbUser.email,
+  role: dbUser.role,
+  createdAt: dbUser.createdAt,
+  updatedAt: dbUser.updatedAt,
+}
+
 describe('UserRepository', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -42,25 +68,27 @@ describe('UserRepository', () => {
   })
 
   describe('findUserById', () => {
-    it('queries using the bigint id', async () => {
-      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(dbUser)
+    it('queries using the bigint id with public select projection (without passwordHash)', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(publicUser)
 
       await findUserById(dbUser.id)
 
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: dbUser.id },
+        select: expectedPublicSelect,
       })
       expect(typeof mockPrisma.user.findUnique.mock.calls[0][0].where.id).toBe(
         'bigint'
       )
     })
 
-    it('returns the mapped user when found', async () => {
-      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(dbUser)
+    it('returns the mapped user without passwordHash when found', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(publicUser)
 
       const result = await findUserById(dbUser.id)
 
-      expect(result).toEqual(dbUser)
+      expect(result).toEqual(publicUser)
+      expect((result as Record<string, unknown>).passwordHash).toBeUndefined()
     })
 
     it('returns null when not found', async () => {
@@ -73,22 +101,24 @@ describe('UserRepository', () => {
   })
 
   describe('findUserByEmail', () => {
-    it('queries using the given email', async () => {
-      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(dbUser)
+    it('queries using the given email with public select projection (without passwordHash)', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(publicUser)
 
       await findUserByEmail('ADA@example.com')
 
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'ADA@example.com' },
+        select: expectedPublicSelect,
       })
     })
 
-    it('returns the mapped user when found', async () => {
-      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(dbUser)
+    it('returns the mapped user without passwordHash when found', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(publicUser)
 
       const result = await findUserByEmail(dbUser.email)
 
-      expect(result).toEqual(dbUser)
+      expect(result).toEqual(publicUser)
+      expect((result as Record<string, unknown>).passwordHash).toBeUndefined()
     })
 
     it('returns null when not found', async () => {
@@ -106,6 +136,61 @@ describe('UserRepository', () => {
 
       expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { email: '  Mixed@Case.com  ' },
+        select: expectedPublicSelect,
+      })
+    })
+  })
+
+  describe('findUserAuthByEmail', () => {
+    it('queries using the given email with auth select projection (including passwordHash)', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(dbUser)
+
+      await findUserAuthByEmail('ada@example.com')
+
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'ada@example.com' },
+        select: expectedAuthSelect,
+      })
+    })
+
+    it('returns UserAuthRecord containing passwordHash when found', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(dbUser)
+
+      const result = await findUserAuthByEmail(dbUser.email)
+
+      expect(result).toEqual(dbUser)
+      expect(result?.passwordHash).toBe('hashed-value')
+    })
+
+    it('returns null when not found', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(null)
+
+      const result = await findUserAuthByEmail('missing@example.com')
+
+      expect(result).toBeNull()
+    })
+
+    it('does not normalize email or apply business rules', async () => {
+      jest.mocked(mockPrisma.user.findUnique).mockResolvedValueOnce(null)
+
+      await findUserAuthByEmail('  Mixed@Case.com  ')
+
+      expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: '  Mixed@Case.com  ' },
+        select: expectedAuthSelect,
+      })
+    })
+  })
+
+  describe('updatePasswordHash', () => {
+    it('updates passwordHash for the user by id', async () => {
+      jest.mocked(mockPrisma.user.update).mockResolvedValueOnce(dbUser)
+
+      await updatePasswordHash(123456789012345678n, 'new-hashed-value')
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: 123456789012345678n },
+        data: { passwordHash: 'new-hashed-value' },
       })
     })
   })
@@ -118,10 +203,10 @@ describe('UserRepository', () => {
       passwordHash: dbUser.passwordHash,
     }
 
-    it('persists the received data using the given id (does not generate one internally)', async () => {
-      jest.mocked(mockPrisma.user.create).mockResolvedValueOnce(dbUser)
+    it('persists data using given id and selects only public fields (does not return passwordHash)', async () => {
+      jest.mocked(mockPrisma.user.create).mockResolvedValueOnce(publicUser)
 
-      await createUser(input)
+      const result = await createUser(input)
 
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
         data: {
@@ -130,15 +215,10 @@ describe('UserRepository', () => {
           email: input.email,
           passwordHash: input.passwordHash,
         },
+        select: expectedPublicSelect,
       })
-    })
-
-    it('returns the created user', async () => {
-      jest.mocked(mockPrisma.user.create).mockResolvedValueOnce(dbUser)
-
-      const result = await createUser(input)
-
-      expect(result).toEqual(dbUser)
+      expect(result).toEqual(publicUser)
+      expect((result as Record<string, unknown>).passwordHash).toBeUndefined()
     })
 
     it('does not accept a plaintext password or an externally controlled role in its input type', () => {
@@ -186,9 +266,11 @@ describe('UserRepository', () => {
   })
 
   describe('userRepository singleton', () => {
-    it('exposes findUserById, findUserByEmail, and createUser methods', () => {
+    it('exposes all defined repository methods', () => {
       expect(userRepository.findUserById).toBe(findUserById)
       expect(userRepository.findUserByEmail).toBe(findUserByEmail)
+      expect(userRepository.findUserAuthByEmail).toBe(findUserAuthByEmail)
+      expect(userRepository.updatePasswordHash).toBe(updatePasswordHash)
       expect(userRepository.createUser).toBe(createUser)
     })
   })
@@ -215,6 +297,24 @@ describe('UserRepository', () => {
       jest.mocked(mockPrisma.user.findUnique).mockRejectedValueOnce(dbError)
 
       await expect(findUserByEmail(dbUser.email)).rejects.toThrow(
+        'Connection refused'
+      )
+    })
+
+    it('propagates unexpected Prisma errors from findUserAuthByEmail', async () => {
+      const dbError = new Error('Connection refused')
+      jest.mocked(mockPrisma.user.findUnique).mockRejectedValueOnce(dbError)
+
+      await expect(findUserAuthByEmail(dbUser.email)).rejects.toThrow(
+        'Connection refused'
+      )
+    })
+
+    it('propagates unexpected Prisma errors from updatePasswordHash', async () => {
+      const dbError = new Error('Connection refused')
+      jest.mocked(mockPrisma.user.update).mockRejectedValueOnce(dbError)
+
+      await expect(updatePasswordHash(dbUser.id, 'new-hash')).rejects.toThrow(
         'Connection refused'
       )
     })
