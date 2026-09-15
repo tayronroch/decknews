@@ -1,7 +1,15 @@
 /**
  * @jest-environment node
  */
+jest.mock('@/infra/docs/is-api-documentation-enabled', () => ({
+  isApiDocumentationEnabled: jest.fn(() => true),
+}))
+
+import { isApiDocumentationEnabled } from '@/infra/docs/is-api-documentation-enabled'
+
 import { GET } from './route'
+
+const mockIsApiDocumentationEnabled = jest.mocked(isApiDocumentationEnabled)
 
 describe('GET /api/v1/openapi.json', () => {
   it('returns the OpenAPI 3.1 contract for public endpoints', async () => {
@@ -55,5 +63,13 @@ describe('GET /api/v1/openapi.json', () => {
     expect(spec.components.schemas.LoginInput.properties.password).toEqual(
       expect.objectContaining({ minLength: 1, maxLength: 256 })
     )
+  })
+
+  it('returns 404 outside development', async () => {
+    mockIsApiDocumentationEnabled.mockReturnValueOnce(false)
+
+    const response = GET()
+
+    expect(response.status).toBe(404)
   })
 })

@@ -10,9 +10,17 @@ jest.mock('@scalar/nextjs-api-reference', () => ({
   ),
 }))
 
+jest.mock('@/infra/docs/is-api-documentation-enabled', () => ({
+  isApiDocumentationEnabled: jest.fn(() => true),
+}))
+
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
+import { isApiDocumentationEnabled } from '@/infra/docs/is-api-documentation-enabled'
+
 import { GET } from './route'
+
+const mockIsApiDocumentationEnabled = jest.mocked(isApiDocumentationEnabled)
 
 describe('GET /api/v1/docs', () => {
   it('returns the Scalar HTML reference configured for the local OpenAPI contract', async () => {
@@ -28,5 +36,11 @@ describe('GET /api/v1/docs', () => {
       theme: 'moon',
       cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.67.0',
     })
+  })
+
+  it('returns 404 outside development', () => {
+    mockIsApiDocumentationEnabled.mockReturnValueOnce(false)
+
+    expect(GET().status).toBe(404)
   })
 })
