@@ -26,3 +26,19 @@ O Decknews adota o **Zod** como mecanismo padrão e mandatório para validação
 - **Organização dos Schemas**:
   - Schemas compartilhados e primitivos em `src/lib/validation/` (ex.: `paginationSchema` com coerção e limite `max(100)`).
   - Schemas de domínio em `src/features/<dominio>/schemas/` (ex.: `create-post.schema.ts`). Schemas compartilhados só devem ser criados quando houver real reutilização.
+
+---
+
+## 3. Cadastro de usuário
+
+`POST /api/v1/auth/register` valida o corpo com `registerSchema` antes de
+chamar o caso de uso. O contrato aceita somente `name`, `email` e `password`:
+
+- `name` recebe `trim()` e deve ter entre 2 e 100 caracteres;
+- `email` recebe somente `trim()` e conversão para minúsculas;
+- `password` deve ter entre 12 e 256 caracteres e não sofre transformações.
+
+O schema é estrito: campos como `id`, `role`, `passwordHash` e timestamps são
+rejeitados com `400 VALIDATION_ERROR`. Após a validação, a rota delega a criação
+ao service; a resposta `201 Created` expõe apenas os dados públicos do usuário,
+com o identificador serializado como string. O cadastro não inicia uma sessão.

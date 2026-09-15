@@ -108,6 +108,26 @@ describe('POST /api/v1/auth/register', () => {
     expect(json.error.code).toBe('VALIDATION_ERROR')
   })
 
+  it('returns 400 Bad Request when name is invalid', async () => {
+    const request = createRequest({
+      name: 'A',
+      email: 'ada@example.com',
+      password: 'secure-password-123',
+    })
+
+    const response = await POST(request)
+    const json = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(json).toEqual({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Dados inválidos',
+      },
+    })
+    expect(mockExecute).not.toHaveBeenCalled()
+  })
+
   it('returns 400 Bad Request when extra fields like role are supplied', async () => {
     const request = createRequest({
       name: 'Ada Lovelace',
