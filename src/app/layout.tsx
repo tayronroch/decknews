@@ -1,12 +1,25 @@
 import './globals.css'
 
 import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { ReactNode } from 'react'
 
+import { cn } from '@/lib/utils'
+
+const geistSans = Geist({
+  variable: '--font-sans',
+  subsets: ['latin'],
+})
+
+const geistMono = Geist_Mono({
+  variable: '--font-mono',
+  subsets: ['latin'],
+})
+
 export const metadata: Metadata = {
-  title: 'Decknews - MiniBlog',
+  title: 'Decknews / notas sobre tecnologia',
   description:
-    'Plataforma MiniBlog desenvolvida com Next.js, React e TypeScript',
+    'Notas, ideias e experiências sobre tecnologia, redes, infraestrutura e desenvolvimento.',
 }
 
 interface RootLayoutProps {
@@ -15,9 +28,13 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html
+      lang="pt-BR"
+      className={cn(geistSans.variable, geistMono.variable)}
+      suppressHydrationWarning
+    >
       <body
-        className="bg-slate-900 font-sans text-slate-50 antialiased"
+        className="bg-background text-foreground selection:text-foreground min-h-screen font-sans antialiased selection:bg-[#879b8f]/20"
         suppressHydrationWarning
       >
         {children}
