@@ -204,6 +204,10 @@ The development database is isolated in `infra/database.compose.yaml` and is
 still started automatically by `pnpm dev`; it is not part of the application
 Compose file.
 
+The application Compose file checks availability through `/api/v1/health`. This
+probe does not depend on the database; PostgreSQL connectivity is exposed
+separately at `/api/v1/status`.
+
 ---
 
 ## ✅ Acceptance Criteria Met
