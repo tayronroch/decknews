@@ -10,6 +10,11 @@ const serverSchema = z.object({
   DATABASE_POOL_SIZE: z.coerce.number().int().positive().default(10),
   PASSWORD_PEPPER: z.string().min(16),
   PASSWORD_PEPPER_PREVIOUS: z.string().min(16).optional(),
+  SESSION_TTL_IN_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60 * 60 * 24 * 7),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>

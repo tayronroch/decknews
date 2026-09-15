@@ -28,6 +28,7 @@ describe('env/server', () => {
       PORT: 3000,
       DATABASE_POOL_SIZE: 10,
       PASSWORD_PEPPER: 'jest-setup-test-pepper-token-123456',
+      SESSION_TTL_IN_SECONDS: 604800,
     })
   })
 
@@ -75,5 +76,27 @@ describe('env/server', () => {
     const { env } = await import('./server')
 
     expect(env.PASSWORD_PEPPER_PREVIOUS).toBe('previous-pepper-token-123456')
+  })
+
+  it('parses custom SESSION_TTL_IN_SECONDS when provided', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    process.env.PASSWORD_PEPPER = 'jest-setup-test-pepper-token-123456'
+    process.env.SESSION_TTL_IN_SECONDS = '86400'
+
+    const { env } = await import('./server')
+
+    expect(env.SESSION_TTL_IN_SECONDS).toBe(86400)
+  })
+
+  it('throws when SESSION_TTL_IN_SECONDS is not a positive integer', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    process.env.PASSWORD_PEPPER = 'jest-setup-test-pepper-token-123456'
+    process.env.SESSION_TTL_IN_SECONDS = '-10'
+
+    await expect(import('./server')).rejects.toThrow(/SESSION_TTL_IN_SECONDS/)
   })
 })
