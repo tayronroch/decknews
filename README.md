@@ -204,6 +204,10 @@ O banco de desenvolvimento é isolado em `infra/database.compose.yaml` e continu
 sendo iniciado automaticamente por `pnpm dev`; não faz parte do Compose da
 aplicação.
 
+O Compose da aplicação verifica sua disponibilidade em `/api/v1/health`. Essa
+sonda não depende do banco de dados; a disponibilidade da conexão PostgreSQL é
+exposta separadamente em `/api/v1/status`.
+
 ---
 
 ## ✅ Critérios de Aceite Atendidos
