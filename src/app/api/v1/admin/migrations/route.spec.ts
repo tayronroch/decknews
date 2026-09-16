@@ -10,7 +10,7 @@ import {
   runPendingMigrations,
 } from '@/infra/database/migrator'
 
-import { GET, POST } from './route'
+import { dynamic, GET, POST } from './route'
 
 const VALID_TOKEN = 'test-secure-migration-token-123456'
 
@@ -60,6 +60,10 @@ describe('/api/v1/admin/migrations', () => {
   })
 
   describe('Authentication & Configuration', () => {
+    it('configures route as force-dynamic', () => {
+      expect(dynamic).toBe('force-dynamic')
+    })
+
     it('returns 500 when MIGRATION_TOKEN is not configured on server (GET)', async () => {
       mockEnv.MIGRATION_TOKEN = undefined
       const request = createMigrationRequest('GET', {

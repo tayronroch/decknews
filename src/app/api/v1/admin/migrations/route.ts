@@ -1,4 +1,4 @@
-import { timingSafeEqual } from 'node:crypto'
+import { createHash, timingSafeEqual } from 'node:crypto'
 
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,6 +10,8 @@ import {
   runPendingMigrations,
 } from '@/infra/database/migrator'
 import { env } from '@/lib/env/server'
+
+export const dynamic = 'force-dynamic'
 
 function authenticateMigrationRequest(
   request: NextRequest
@@ -36,13 +38,10 @@ function authenticateMigrationRequest(
   }
 
   const providedToken = authHeader.slice(7).trim()
-  const expectedBuffer = Buffer.from(env.MIGRATION_TOKEN)
-  const providedBuffer = Buffer.from(providedToken)
+  const expectedHash = createHash('sha256').update(env.MIGRATION_TOKEN).digest()
+  const providedHash = createHash('sha256').update(providedToken).digest()
 
-  if (
-    expectedBuffer.length !== providedBuffer.length ||
-    !timingSafeEqual(expectedBuffer, providedBuffer)
-  ) {
+  if (!timingSafeEqual(expectedHash, providedHash)) {
     return NextResponse.json(
       { error: 'Unauthorized', message: 'Invalid migration token.' },
       { status: 401 }
