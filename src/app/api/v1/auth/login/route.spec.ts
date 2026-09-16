@@ -83,7 +83,6 @@ describe('POST /api/v1/auth/login', () => {
         id: '987654321012345678',
         name: 'Ada Lovelace',
         email: 'ada@example.com',
-        role: 'USER',
       },
     })
 

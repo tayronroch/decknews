@@ -4,10 +4,7 @@ import type { UserRecord } from '@/features/users/types'
 import { UnauthorizedError } from '@/infra/errors'
 import { extractSessionToken } from '@/infra/http'
 
-export type AuthenticatedUser = Pick<
-  UserRecord,
-  'id' | 'name' | 'email' | 'role'
->
+export type AuthenticatedUser = Pick<UserRecord, 'id' | 'name' | 'email'>
 
 export async function getCurrentUser(
   request: Request
@@ -27,8 +24,8 @@ export async function getCurrentUser(
     return null
   }
 
-  const { id, name, email, role } = user
-  return { id, name, email, role }
+  const { id, name, email } = user
+  return { id, name, email }
 }
 
 export async function requireAuthenticatedUser(

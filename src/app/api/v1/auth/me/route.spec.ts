@@ -56,7 +56,6 @@ describe('GET /api/v1/auth/me', () => {
         id: '987654321012345678',
         name: 'Ada Lovelace',
         email: 'ada@example.com',
-        role: 'USER',
       },
     })
     expect(JSON.stringify(body)).not.toContain('passwordHash')

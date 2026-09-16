@@ -57,7 +57,6 @@ describe('POST /api/v1/auth/register', () => {
         id: '987654321012345678',
         name: 'Ada Lovelace',
         email: 'ada@example.com',
-        role: 'USER',
         createdAt: '2026-09-07T23:00:00.000Z',
       },
     })

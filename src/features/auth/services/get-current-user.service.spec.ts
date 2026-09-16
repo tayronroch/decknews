@@ -55,7 +55,6 @@ describe('current authenticated user', () => {
       id: 987654321012345678n,
       name: 'Ada Lovelace',
       email: 'ada@example.com',
-      role: 'USER',
     })
     expect(userRepository.findUserById).toHaveBeenCalledWith(
       validatedSession.session.userId
