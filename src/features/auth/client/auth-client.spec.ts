@@ -2,6 +2,10 @@ import { authClient, AuthClientError, getSafeNext } from './auth-client'
 
 describe('auth client', () => {
   const fetchMock = jest.fn<typeof fetch>()
+  const originalFetchDescriptor = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'fetch'
+  )
   const response = (status: number, body?: unknown) =>
     ({
       ok: status >= 200 && status < 300,
@@ -22,7 +26,11 @@ describe('auth client', () => {
   })
 
   afterAll(() => {
-    delete (globalThis as { fetch?: typeof fetch }).fetch
+    if (originalFetchDescriptor) {
+      Object.defineProperty(globalThis, 'fetch', originalFetchDescriptor)
+    } else {
+      delete (globalThis as { fetch?: typeof fetch }).fetch
+    }
   })
 
   it('allows only safe same-origin destinations', () => {
@@ -67,6 +75,20 @@ describe('auth client', () => {
     await expect(
       authClient.login({ email: 'ada@example.com', password: 'wrong-password' })
     ).rejects.toBeInstanceOf(AuthClientError)
+  })
+
+  it('does not persist authentication data in browser storage', async () => {
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+    fetchMock.mockResolvedValue(response(200, { user: { id: '1' } }))
+
+    await authClient.login({
+      email: 'ada@example.com',
+      password: 'password-password',
+    })
+
+    expect(window.localStorage.length).toBe(0)
+    expect(window.sessionStorage.length).toBe(0)
   })
 
   it('uses the current-user and logout endpoints', async () => {
