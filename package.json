@@ -12,6 +12,7 @@
     "services:stop": "docker compose -f infra/database.compose.yaml stop",
     "app:up": "docker compose -f infra/compose.yaml up --build -d",
     "app:down": "docker compose -f infra/compose.yaml down",
+    "bootstrap:admin": "node infra/scripts/bootstrap-admin.mjs",
     "services:wait:database": "node infra/scripts/wait-for-postgres.js",
     "build": "next build",
     "start": "next start",
