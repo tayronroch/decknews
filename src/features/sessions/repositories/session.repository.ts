@@ -39,6 +39,7 @@ export interface SessionRepository {
   createSession(input: CreateSessionRepositoryInput): Promise<SessionRecord>
   findSessionByTokenHash(tokenHash: string): Promise<SessionRecord | null>
   deleteSessionById(id: bigint): Promise<void>
+  deleteSessionByTokenHash(tokenHash: string): Promise<void>
   deleteSessionsByUserId(userId: bigint): Promise<void>
 }
 
@@ -81,6 +82,14 @@ export async function deleteSessionById(id: bigint): Promise<void> {
   })
 }
 
+export async function deleteSessionByTokenHash(
+  tokenHash: string
+): Promise<void> {
+  await prisma.session.deleteMany({
+    where: { tokenHash },
+  })
+}
+
 export async function deleteSessionsByUserId(userId: bigint): Promise<void> {
   await prisma.session.deleteMany({
     where: { userId },
@@ -91,5 +100,6 @@ export const sessionRepository: SessionRepository = {
   createSession,
   findSessionByTokenHash,
   deleteSessionById,
+  deleteSessionByTokenHash,
   deleteSessionsByUserId,
 }

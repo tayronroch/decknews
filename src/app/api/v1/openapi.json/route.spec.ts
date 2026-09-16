@@ -24,6 +24,7 @@ describe('GET /api/v1/openapi.json', () => {
         '/api/v1/auth/register': expect.any(Object),
         '/api/v1/auth/login': expect.any(Object),
         '/api/v1/auth/me': expect.any(Object),
+        '/api/v1/auth/logout': expect.any(Object),
         '/api/v1/status': expect.any(Object),
         '/api/v1/health': expect.any(Object),
       })
@@ -83,6 +84,22 @@ describe('GET /api/v1/openapi.json', () => {
       type: 'apiKey',
       in: 'cookie',
       name: 'decknews_session',
+    })
+  })
+
+  it('documents the logout endpoint with sessionCookie security and 204 response', async () => {
+    const spec = await GET().json()
+
+    expect(spec.paths['/api/v1/auth/logout'].post).toEqual({
+      tags: ['Auth'],
+      operationId: 'logout',
+      summary: 'Encerra a sessão atual do usuário',
+      security: [{ sessionCookie: [] }],
+      responses: {
+        '204': {
+          description: 'Sessão encerrada com sucesso.',
+        },
+      },
     })
   })
 

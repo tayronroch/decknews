@@ -89,6 +89,19 @@ export const openApiSpec = {
         },
       },
     },
+    '/api/v1/auth/logout': {
+      post: {
+        tags: ['Auth'],
+        operationId: 'logout',
+        summary: 'Encerra a sessão atual do usuário',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '204': {
+            description: 'Sessão encerrada com sucesso.',
+          },
+        },
+      },
+    },
     '/api/v1/status': {
       get: {
         tags: ['Status'],
