@@ -23,6 +23,7 @@ describe('GET /api/v1/openapi.json', () => {
       expect.objectContaining({
         '/api/v1/auth/register': expect.any(Object),
         '/api/v1/auth/login': expect.any(Object),
+        '/api/v1/auth/me': expect.any(Object),
         '/api/v1/status': expect.any(Object),
         '/api/v1/health': expect.any(Object),
       })
@@ -63,6 +64,26 @@ describe('GET /api/v1/openapi.json', () => {
     expect(spec.components.schemas.LoginInput.properties.password).toEqual(
       expect.objectContaining({ minLength: 1, maxLength: 256 })
     )
+  })
+
+  it('documents the authenticated current-user endpoint', async () => {
+    const spec = await GET().json()
+
+    expect(spec.paths['/api/v1/auth/me'].get).toEqual(
+      expect.objectContaining({
+        security: [{ sessionCookie: [] }],
+        responses: expect.objectContaining({
+          '200': expect.any(Object),
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '500': expect.any(Object),
+        }),
+      })
+    )
+    expect(spec.components.securitySchemes.sessionCookie).toEqual({
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'decknews_session',
+    })
   })
 
   it('returns 404 outside development', async () => {

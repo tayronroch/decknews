@@ -69,6 +69,26 @@ export const openApiSpec = {
         },
       },
     },
+    '/api/v1/auth/me': {
+      get: {
+        tags: ['Auth'],
+        operationId: 'getCurrentUser',
+        summary: 'Obtém o usuário autenticado',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '200': {
+            description: 'Usuário autenticado.',
+            content: {
+              [json]: {
+                schema: { $ref: '#/components/schemas/LoginSuccessResponse' },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+    },
     '/api/v1/status': {
       get: {
         tags: ['Status'],
@@ -108,6 +128,13 @@ export const openApiSpec = {
     },
   },
   components: {
+    securitySchemes: {
+      sessionCookie: {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'decknews_session',
+      },
+    },
     schemas: {
       RegisterInput: {
         type: 'object',
