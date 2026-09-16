@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { getCurrentUserBySessionToken } from '@/features/auth/services'
 import { RoleManager } from '@/features/rbac/components'
 import { requirePermission } from '@/features/rbac/services'
-import { ForbiddenError, UnauthorizedError } from '@/infra/errors'
+import { ForbiddenError } from '@/infra/errors'
 import { SESSION_COOKIE_NAME } from '@/infra/http'
 
 export default async function AdminRolesPage() {
@@ -13,11 +13,7 @@ export default async function AdminRolesPage() {
   try {
     await requirePermission(user, 'role.read')
   } catch (error) {
-    if (!(
-      error instanceof ForbiddenError || error instanceof UnauthorizedError
-    )) {
-      throw error
-    }
+    if (!(error instanceof ForbiddenError)) throw error
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl items-center p-6">
         <section className="w-full rounded-xl border p-8 text-center">

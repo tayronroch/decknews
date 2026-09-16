@@ -1,2 +1,1 @@
-// Componentes específicos do domínio de autenticação
-export {}
+export * from './authenticated-header'
