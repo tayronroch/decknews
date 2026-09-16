@@ -8,23 +8,23 @@ const roles = {
 }
 
 const permissions = [
-  ['post.read', 'Posts'],
-  ['post.create', 'Posts'],
-  ['post.update.own', 'Posts'],
-  ['post.update.any', 'Posts'],
-  ['post.delete.own', 'Posts'],
-  ['post.delete.any', 'Posts'],
-  ['comment.read', 'Comentários'],
-  ['comment.create', 'Comentários'],
-  ['comment.delete.own', 'Comentários'],
-  ['comment.delete.any', 'Comentários'],
-  ['user.read', 'Usuários'],
-  ['user.manage', 'Usuários'],
-  ['role.read', 'Cargos'],
-  ['role.create', 'Cargos'],
-  ['role.update', 'Cargos'],
-  ['role.delete', 'Cargos'],
-  ['role.permissions.manage', 'Cargos'],
+  ['post.read', 'Posts', 'Visualizar postagens'],
+  ['post.create', 'Posts', 'Criar postagens'],
+  ['post.update.own', 'Posts', 'Editar próprias postagens'],
+  ['post.update.any', 'Posts', 'Editar qualquer postagem'],
+  ['post.delete.own', 'Posts', 'Excluir próprias postagens'],
+  ['post.delete.any', 'Posts', 'Excluir qualquer postagem'],
+  ['comment.read', 'Comentários', 'Visualizar comentários'],
+  ['comment.create', 'Comentários', 'Criar comentários'],
+  ['comment.delete.own', 'Comentários', 'Excluir próprios comentários'],
+  ['comment.delete.any', 'Comentários', 'Excluir qualquer comentário'],
+  ['user.read', 'Usuários', 'Visualizar usuários'],
+  ['user.manage', 'Usuários', 'Gerenciar usuários'],
+  ['role.read', 'Cargos', 'Visualizar cargos'],
+  ['role.create', 'Cargos', 'Criar cargos'],
+  ['role.update', 'Cargos', 'Editar cargos'],
+  ['role.delete', 'Cargos', 'Excluir cargos'],
+  ['role.permissions.manage', 'Cargos', 'Gerenciar permissões de cargos'],
 ]
 
 async function main() {
@@ -47,11 +47,16 @@ async function main() {
     },
   })
 
-  for (const [index, [key, module]] of permissions.entries()) {
+  for (const [index, [key, module, description]] of permissions.entries()) {
     await prisma.permission.upsert({
       where: { key },
-      update: { module },
-      create: { id: 1987654321098765100n + BigInt(index), key, module },
+      update: { module, description },
+      create: {
+        id: 1987654321098765100n + BigInt(index),
+        key,
+        module,
+        description,
+      },
     })
   }
 
