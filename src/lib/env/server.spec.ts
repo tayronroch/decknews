@@ -99,4 +99,26 @@ describe('env/server', () => {
 
     await expect(import('./server')).rejects.toThrow(/SESSION_TTL_IN_SECONDS/)
   })
+
+  it('parses MIGRATION_TOKEN when provided', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    process.env.PASSWORD_PEPPER = 'jest-setup-test-pepper-token-123456'
+    process.env.MIGRATION_TOKEN = 'super-secret-token-123456'
+
+    const { env } = await import('./server')
+
+    expect(env.MIGRATION_TOKEN).toBe('super-secret-token-123456')
+  })
+
+  it('throws when MIGRATION_TOKEN is shorter than 16 characters', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+    process.env.PORT = '3000'
+    process.env.PASSWORD_PEPPER = 'jest-setup-test-pepper-token-123456'
+    process.env.MIGRATION_TOKEN = 'short'
+
+    await expect(import('./server')).rejects.toThrow(/MIGRATION_TOKEN/)
+  })
 })
