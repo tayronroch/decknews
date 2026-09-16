@@ -8,6 +8,7 @@ import { UniqueConstraintError } from '@/shared/errors/persistence'
 import {
   createSession,
   deleteSessionById,
+  deleteSessionByTokenHash,
   deleteSessionsByUserId,
   findSessionByTokenHash,
   sessionRepository,
@@ -121,6 +122,34 @@ describe('SessionRepository', () => {
     })
   })
 
+  describe('deleteSessionByTokenHash', () => {
+    it('deletes session using deleteMany with tokenHash', async () => {
+      jest
+        .mocked(mockPrisma.session.deleteMany)
+        .mockResolvedValueOnce({ count: 1 })
+
+      await deleteSessionByTokenHash(dbSession.tokenHash)
+
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
+        where: { tokenHash: dbSession.tokenHash },
+      })
+    })
+
+    it('succeeds without error when session does not exist (idempotent)', async () => {
+      jest
+        .mocked(mockPrisma.session.deleteMany)
+        .mockResolvedValueOnce({ count: 0 })
+
+      await expect(
+        deleteSessionByTokenHash('nonexistent-hash')
+      ).resolves.toBeUndefined()
+
+      expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
+        where: { tokenHash: 'nonexistent-hash' },
+      })
+    })
+  })
+
   describe('deleteSessionsByUserId', () => {
     it('deletes sessions using deleteMany with userId', async () => {
       jest
@@ -142,6 +171,9 @@ describe('SessionRepository', () => {
         findSessionByTokenHash
       )
       expect(sessionRepository.deleteSessionById).toBe(deleteSessionById)
+      expect(sessionRepository.deleteSessionByTokenHash).toBe(
+        deleteSessionByTokenHash
+      )
       expect(sessionRepository.deleteSessionsByUserId).toBe(
         deleteSessionsByUserId
       )
