@@ -1,15 +1,9 @@
-import type { UserRecord } from '@/features/users/types'
-
 export interface SessionRecord {
   id: bigint
   tokenHash: string
   userId: bigint
   expiresAt: Date
   createdAt: Date
-}
-
-export interface SessionWithUserRecord extends SessionRecord {
-  user: UserRecord
 }
 
 export interface CreateSessionRepositoryInput {
@@ -30,5 +24,4 @@ export interface CreateSessionResult {
 
 export interface ValidateSessionResult {
   session: SessionRecord
-  user: UserRecord
 }

@@ -3,6 +3,8 @@
  */
 import { validateSessionService } from '@/features/sessions/services'
 import type { ValidateSessionResult } from '@/features/sessions/types'
+import { userRepository } from '@/features/users/repositories'
+import type { UserRecord } from '@/features/users/types'
 import { UnauthorizedError } from '@/infra/errors'
 import { SESSION_COOKIE_NAME } from '@/infra/http'
 
@@ -19,14 +21,15 @@ const validatedSession: ValidateSessionResult = {
     expiresAt: new Date('2026-09-22T12:00:00.000Z'),
     createdAt: new Date('2026-09-15T12:00:00.000Z'),
   },
-  user: {
-    id: 987654321012345678n,
-    name: 'Ada Lovelace',
-    email: 'ada@example.com',
-    role: 'USER',
-    createdAt: new Date('2026-09-01T12:00:00.000Z'),
-    updatedAt: new Date('2026-09-01T12:00:00.000Z'),
-  },
+}
+
+const authenticatedUser: UserRecord = {
+  id: 987654321012345678n,
+  name: 'Ada Lovelace',
+  email: 'ada@example.com',
+  role: 'USER',
+  createdAt: new Date('2026-09-01T12:00:00.000Z'),
+  updatedAt: new Date('2026-09-01T12:00:00.000Z'),
 }
 
 describe('current authenticated user', () => {
@@ -38,6 +41,9 @@ describe('current authenticated user', () => {
     jest
       .spyOn(validateSessionService, 'execute')
       .mockResolvedValueOnce(validatedSession)
+    jest
+      .spyOn(userRepository, 'findUserById')
+      .mockResolvedValueOnce(authenticatedUser)
 
     const user = await getCurrentUser(
       new Request('http://localhost:3000', {
@@ -51,6 +57,9 @@ describe('current authenticated user', () => {
       email: 'ada@example.com',
       role: 'USER',
     })
+    expect(userRepository.findUserById).toHaveBeenCalledWith(
+      validatedSession.session.userId
+    )
   })
 
   it('returns null when the request has no session cookie', async () => {
@@ -66,6 +75,21 @@ describe('current authenticated user', () => {
       getCurrentUser(
         new Request('http://localhost:3000', {
           headers: { cookie: `${SESSION_COOKIE_NAME}=invalid-session-token` },
+        })
+      )
+    ).resolves.toBeNull()
+  })
+
+  it('returns null when the session user no longer exists', async () => {
+    jest
+      .spyOn(validateSessionService, 'execute')
+      .mockResolvedValueOnce(validatedSession)
+    jest.spyOn(userRepository, 'findUserById').mockResolvedValueOnce(null)
+
+    await expect(
+      getCurrentUser(
+        new Request('http://localhost:3000', {
+          headers: { cookie: `${SESSION_COOKIE_NAME}=valid-session-token` },
         })
       )
     ).resolves.toBeNull()

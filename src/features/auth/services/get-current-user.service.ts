@@ -1,4 +1,5 @@
 import { validateSessionService } from '@/features/sessions/services'
+import { userRepository } from '@/features/users/repositories'
 import type { UserRecord } from '@/features/users/types'
 import { UnauthorizedError } from '@/infra/errors'
 import { extractSessionToken } from '@/infra/http'
@@ -21,7 +22,12 @@ export async function getCurrentUser(
     return null
   }
 
-  const { id, name, email, role } = result.user
+  const user = await userRepository.findUserById(result.session.userId)
+  if (!user) {
+    return null
+  }
+
+  const { id, name, email, role } = user
   return { id, name, email, role }
 }
 
