@@ -9,7 +9,7 @@ import {
 } from '@/infra/security/session'
 
 export interface ValidateSessionServiceDependencies {
-  sessionRepository: Pick<SessionRepository, 'findSessionWithUserByTokenHash'>
+  sessionRepository: Pick<SessionRepository, 'findSessionByTokenHash'>
   tokenGenerator: Pick<SessionTokenGenerator, 'hash'>
   now?: () => Date
 }
@@ -40,30 +40,21 @@ export class ValidateSessionService {
     }
 
     const tokenHash = this.deps.tokenGenerator.hash(token)
-    const sessionWithUser =
-      await this.deps.sessionRepository.findSessionWithUserByTokenHash(
-        tokenHash
-      )
+    const session =
+      await this.deps.sessionRepository.findSessionByTokenHash(tokenHash)
 
-    if (!sessionWithUser) {
+    if (!session) {
       return null
     }
 
     const now = this.deps.now ? this.deps.now() : new Date()
 
-    if (sessionWithUser.expiresAt <= now) {
+    if (session.expiresAt <= now) {
       return null
     }
 
     return {
-      session: {
-        id: sessionWithUser.id,
-        tokenHash: sessionWithUser.tokenHash,
-        userId: sessionWithUser.userId,
-        expiresAt: sessionWithUser.expiresAt,
-        createdAt: sessionWithUser.createdAt,
-      },
-      user: sessionWithUser.user,
+      session,
     }
   }
 }

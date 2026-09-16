@@ -10,7 +10,6 @@ import {
   deleteSessionById,
   deleteSessionsByUserId,
   findSessionByTokenHash,
-  findSessionWithUserByTokenHash,
   sessionRepository,
 } from './session.repository'
 
@@ -36,30 +35,12 @@ const expectedSessionFields = {
   createdAt: true,
 }
 
-const expectedUserPublicFields = {
-  id: true,
-  name: true,
-  email: true,
-  role: true,
-  createdAt: true,
-  updatedAt: true,
-}
-
 const dbSession = {
   id: 111222333444555666n,
   tokenHash: 'a'.repeat(64),
   userId: 987654321012345678n,
   expiresAt: new Date('2026-09-22T00:00:00.000Z'),
   createdAt: new Date('2026-09-15T00:00:00.000Z'),
-}
-
-const dbUser = {
-  id: 987654321012345678n,
-  name: 'Ada Lovelace',
-  email: 'ada@example.com',
-  role: 'USER',
-  createdAt: new Date('2026-09-01T00:00:00.000Z'),
-  updatedAt: new Date('2026-09-01T00:00:00.000Z'),
 }
 
 describe('SessionRepository', () => {
@@ -126,46 +107,6 @@ describe('SessionRepository', () => {
     })
   })
 
-  describe('findSessionWithUserByTokenHash', () => {
-    it('queries session with user and returns mapped SessionWithUserRecord', async () => {
-      jest.mocked(mockPrisma.session.findUnique).mockResolvedValueOnce({
-        ...dbSession,
-        user: dbUser,
-      })
-
-      const result = await findSessionWithUserByTokenHash(dbSession.tokenHash)
-
-      expect(mockPrisma.session.findUnique).toHaveBeenCalledWith({
-        where: { tokenHash: dbSession.tokenHash },
-        select: {
-          ...expectedSessionFields,
-          user: {
-            select: expectedUserPublicFields,
-          },
-        },
-      })
-      expect(result).toEqual({
-        ...dbSession,
-        user: {
-          id: dbUser.id,
-          name: dbUser.name,
-          email: dbUser.email,
-          role: 'USER',
-          createdAt: dbUser.createdAt,
-          updatedAt: dbUser.updatedAt,
-        },
-      })
-    })
-
-    it('returns null when session is not found', async () => {
-      jest.mocked(mockPrisma.session.findUnique).mockResolvedValueOnce(null)
-
-      const result = await findSessionWithUserByTokenHash('missing-hash')
-
-      expect(result).toBeNull()
-    })
-  })
-
   describe('deleteSessionById', () => {
     it('deletes session using deleteMany with id', async () => {
       jest
@@ -199,9 +140,6 @@ describe('SessionRepository', () => {
       expect(sessionRepository.createSession).toBe(createSession)
       expect(sessionRepository.findSessionByTokenHash).toBe(
         findSessionByTokenHash
-      )
-      expect(sessionRepository.findSessionWithUserByTokenHash).toBe(
-        findSessionWithUserByTokenHash
       )
       expect(sessionRepository.deleteSessionById).toBe(deleteSessionById)
       expect(sessionRepository.deleteSessionsByUserId).toBe(
