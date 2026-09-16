@@ -1,4 +1,6 @@
 import { execFile } from 'node:child_process'
+import fs from 'node:fs'
+import { resolve } from 'node:path'
 import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
@@ -23,6 +25,45 @@ export class MigrationExecutionError extends Error {
 }
 
 let isMigrating = false
+
+export function resolvePrismaCli(): { file: string; baseArgs: string[] } {
+  const directPath = resolve(
+    process.cwd(),
+    'node_modules/prisma/build/index.js'
+  )
+
+  if (fs.existsSync(directPath)) {
+    return {
+      file: process.execPath,
+      baseArgs: [directPath],
+    }
+  }
+
+  try {
+    const resolvedPath = require.resolve('prisma/build/index.js')
+    if (fs.existsSync(resolvedPath)) {
+      return {
+        file: process.execPath,
+        baseArgs: [resolvedPath],
+      }
+    }
+  } catch {
+    // Fallback to pnpm if direct script is not found
+  }
+
+  return {
+    file: 'pnpm',
+    baseArgs: ['prisma'],
+  }
+}
+
+async function executePrisma(args: string[]): Promise<{
+  stdout: string
+  stderr: string
+}> {
+  const { file, baseArgs } = resolvePrismaCli()
+  return execFileAsync(file, [...baseArgs, ...args])
+}
 
 function extractErrorStreams(error: unknown): {
   output: string
@@ -55,11 +96,7 @@ export async function checkMigrationStatus(): Promise<{
   output: string
 }> {
   try {
-    const { stdout, stderr } = await execFileAsync('pnpm', [
-      'prisma',
-      'migrate',
-      'status',
-    ])
+    const { stdout, stderr } = await executePrisma(['migrate', 'status'])
     const combinedOutput = `${stdout}\n${stderr}`.trim()
     const isUpToDate = isSchemaUpToDate(combinedOutput)
 
@@ -109,11 +146,7 @@ export async function runPendingMigrations(): Promise<{
 
   isMigrating = true
   try {
-    const { stdout, stderr } = await execFileAsync('pnpm', [
-      'prisma',
-      'migrate',
-      'deploy',
-    ])
+    const { stdout, stderr } = await executePrisma(['migrate', 'deploy'])
     const combinedOutput = `${stdout}\n${stderr}`.trim()
     return {
       status: 'success',

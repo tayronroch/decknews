@@ -1,10 +1,13 @@
 import { execFile } from 'node:child_process'
+import fs from 'node:fs'
+import { resolve } from 'node:path'
 import { promisify } from 'node:util'
 
 import {
   checkMigrationStatus,
   MigrationExecutionError,
   MigrationInProgressError,
+  resolvePrismaCli,
   runPendingMigrations,
 } from './migrator'
 
@@ -30,6 +33,10 @@ jest.mock('child_process', () => {
 
 // @ts-expect-error custom promisifier symbol access
 const mockExecFileAsync = execFile[promisify.custom] as jest.Mock
+const expectedPrismaCliPath = resolve(
+  process.cwd(),
+  'node_modules/prisma/build/index.js'
+)
 
 describe('migrator', () => {
   beforeEach(() => {
@@ -68,8 +75,64 @@ describe('migrator', () => {
     })
   })
 
+  describe('resolvePrismaCli', () => {
+    it('resolves direct prisma build path when it exists', () => {
+      const cli = resolvePrismaCli()
+      expect(cli.file).toBe(process.execPath)
+      expect(cli.baseArgs).toEqual([expectedPrismaCliPath])
+    })
+
+    it('falls back to require.resolve when direct path does not exist but require.resolve succeeds', () => {
+      const existsSpy = jest
+        .spyOn(fs, 'existsSync')
+        .mockImplementation((path) => {
+          if (path === expectedPrismaCliPath) {
+            return false
+          }
+          return true
+        })
+
+      const cli = resolvePrismaCli()
+      expect(cli.file).toBe(process.execPath)
+      expect(cli.baseArgs[0]).toContain('build/index.js')
+      existsSpy.mockRestore()
+    })
+
+    it('falls back to pnpm when neither path exists', () => {
+      const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(false)
+
+      const cli = resolvePrismaCli()
+      expect(cli).toEqual({
+        file: 'pnpm',
+        baseArgs: ['prisma'],
+      })
+      existsSpy.mockRestore()
+    })
+  })
+
   describe('checkMigrationStatus', () => {
     it('returns up_to_date when output contains "Database schema is up to date"', async () => {
+      mockExecFileAsync.mockResolvedValueOnce({
+        stdout: 'Database schema is up to date.\n',
+        stderr: '',
+      })
+
+      const result = await checkMigrationStatus()
+
+      expect(mockExecFileAsync).toHaveBeenCalledWith(process.execPath, [
+        expectedPrismaCliPath,
+        'migrate',
+        'status',
+      ])
+      expect(result).toEqual({
+        status: 'up_to_date',
+        message: 'Database schema is up to date.',
+        output: 'Database schema is up to date.',
+      })
+    })
+
+    it('falls back to pnpm when direct prisma script is not found', async () => {
+      const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(false)
       mockExecFileAsync.mockResolvedValueOnce({
         stdout: 'Database schema is up to date.\n',
         stderr: '',
@@ -82,11 +145,8 @@ describe('migrator', () => {
         'migrate',
         'status',
       ])
-      expect(result).toEqual({
-        status: 'up_to_date',
-        message: 'Database schema is up to date.',
-        output: 'Database schema is up to date.',
-      })
+      expect(result.status).toBe('up_to_date')
+      existsSpy.mockRestore()
     })
 
     it('returns up_to_date when output contains "No pending migrations"', async () => {
@@ -170,7 +230,28 @@ describe('migrator', () => {
   })
 
   describe('runPendingMigrations', () => {
-    it('executes prisma migrate deploy and returns success result', async () => {
+    it('executes prisma migrate deploy directly via Node and returns success result', async () => {
+      mockExecFileAsync.mockResolvedValueOnce({
+        stdout: '1 migration applied successfully.',
+        stderr: '',
+      })
+
+      const result = await runPendingMigrations()
+
+      expect(mockExecFileAsync).toHaveBeenCalledWith(process.execPath, [
+        expectedPrismaCliPath,
+        'migrate',
+        'deploy',
+      ])
+      expect(result).toEqual({
+        status: 'success',
+        message: 'Migrations executed successfully.',
+        output: '1 migration applied successfully.',
+      })
+    })
+
+    it('executes prisma migrate deploy via pnpm fallback when direct script is not found', async () => {
+      const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(false)
       mockExecFileAsync.mockResolvedValueOnce({
         stdout: '1 migration applied successfully.',
         stderr: '',
@@ -188,6 +269,7 @@ describe('migrator', () => {
         message: 'Migrations executed successfully.',
         output: '1 migration applied successfully.',
       })
+      existsSpy.mockRestore()
     })
 
     it('prevents concurrent migration runs by throwing MigrationInProgressError', async () => {
