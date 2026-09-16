@@ -42,6 +42,32 @@ describe('auth client', () => {
     expect(getSafeNext(null)).toBe('/admin')
   })
 
+  it.each([
+    '/\t/evil.example',
+    '/\n/evil.example',
+    '/\r/evil.example',
+    '/%09/evil.example',
+    '/%0a/evil.example',
+    '/%0d/evil.example',
+    '/%2f/evil.example',
+    '/safe/..//evil.example',
+    '/safe/%2e%2e//evil.example',
+    '/safe/..%2f/evil.example',
+    '/broken%encoding',
+    ['/admin/roles', '//evil.example'],
+    ['/admin/roles'],
+    undefined,
+    '',
+  ])('rejects unsafe or ambiguous next value %j', (value) => {
+    expect(getSafeNext(value)).toBe('/admin')
+  })
+
+  it('returns a canonical internal destination with query and fragment intact', () => {
+    expect(getSafeNext('/admin/old/../roles?sort=name#list')).toBe(
+      '/admin/roles?sort=name#list'
+    )
+  })
+
   it('registers with an explicit JSON POST payload', async () => {
     fetchMock.mockResolvedValue(response(201, { user: { id: '1' } }))
 

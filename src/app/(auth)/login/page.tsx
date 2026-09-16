@@ -8,7 +8,7 @@ import { getCurrentUserBySessionToken } from '@/features/auth/services'
 import { SESSION_COOKIE_NAME } from '@/infra/http'
 
 type LoginPageProps = {
-  searchParams: Promise<{ next?: string }>
+  searchParams: Promise<{ next?: string | string[] }>
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {

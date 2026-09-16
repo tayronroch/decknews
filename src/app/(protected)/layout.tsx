@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { AuthenticatedHeader } from '@/features/auth/components'
@@ -12,11 +11,10 @@ export default async function ProtectedLayout({
   const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value
   const user = await getCurrentUserBySessionToken(token)
 
-  if (!user) redirect('/login?next=/admin')
-
+  // Each page guards its session before rendering and supplies its own return URL.
   return (
     <>
-      <AuthenticatedHeader user={user} />
+      {user ? <AuthenticatedHeader user={user} /> : null}
       {children}
     </>
   )

@@ -1,14 +1,10 @@
-import { cookies } from 'next/headers'
-
-import { getCurrentUserBySessionToken } from '@/features/auth/services'
+import { requirePageUser } from '@/features/auth/services/require-page-user'
 import { RoleManager } from '@/features/rbac/components'
 import { requirePermission } from '@/features/rbac/services'
 import { ForbiddenError } from '@/infra/errors'
-import { SESSION_COOKIE_NAME } from '@/infra/http'
 
 export default async function AdminRolesPage() {
-  const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value
-  const user = await getCurrentUserBySessionToken(token)
+  const user = await requirePageUser('/admin/roles')
 
   try {
     await requirePermission(user, 'role.read')

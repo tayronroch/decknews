@@ -207,6 +207,61 @@ describe('LoginForm', () => {
     )
   })
 
+  it.each([new AuthClientError(401), new Error('network unavailable')])(
+    'announces session confirmation failure without navigating: %s',
+    async (error) => {
+      mockLogin.mockResolvedValue({
+        user: { id: '1', name: 'Ada Lovelace', email: 'ada@example.com' },
+      })
+      mockGetCurrentUser.mockRejectedValueOnce(error)
+
+      await act(async () => root.render(<LoginForm next="/admin/roles" />))
+      await act(async () => {
+        changeInput(inputForLabel(container, 'E-mail'), 'ada@example.com')
+        changeInput(inputForLabel(container, 'Senha'), 'password-password')
+      })
+      await act(async () => {
+        container.querySelector<HTMLButtonElement>('button')?.click()
+      })
+
+      expect(container.querySelector('[role="alert"]')?.textContent).toBe(
+        'Não foi possível confirmar a sessão. Tente novamente.'
+      )
+      expect(container.textContent).not.toContain('Credenciais inválidas')
+      expect(mockReplace).not.toHaveBeenCalled()
+      expect(mockRefresh).not.toHaveBeenCalled()
+      expect(container.querySelector('button')?.disabled).toBe(false)
+    }
+  )
+
+  it.each([LoginPage, RegisterPage])(
+    'rejects repeated next parameters on %p',
+    async (Page) => {
+      mockCookies.mockResolvedValue({
+        get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+      } as unknown as Awaited<ReturnType<typeof cookies>>)
+      mockGetCurrentUserBySessionToken.mockResolvedValue({
+        id: 1n,
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+      })
+      const redirectError = new Error('redirect')
+      mockRedirect.mockImplementation(() => {
+        throw redirectError
+      })
+
+      await expect(
+        Page({
+          searchParams: Promise.resolve({
+            next: ['/admin/roles', '//evil.example'],
+          }),
+        })
+      ).rejects.toThrow(redirectError)
+
+      expect(mockRedirect).toHaveBeenCalledWith('/admin')
+    }
+  )
+
   it('redirects an authenticated visitor from login to their safe destination', async () => {
     const get = jest.fn().mockReturnValue({ value: 'valid-token' })
     mockCookies.mockResolvedValue({ get } as Awaited<

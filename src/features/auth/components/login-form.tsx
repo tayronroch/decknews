@@ -63,7 +63,12 @@ export function LoginForm({ next }: LoginFormProps) {
 
     try {
       await authClient.login(parsed.data)
-      await authClient.getCurrentUser()
+      try {
+        await authClient.getCurrentUser()
+      } catch {
+        setFormError('Não foi possível confirmar a sessão. Tente novamente.')
+        return
+      }
       router.replace(next)
       router.refresh()
     } catch (error) {

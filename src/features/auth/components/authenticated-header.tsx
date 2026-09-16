@@ -13,14 +13,18 @@ type AuthenticatedHeaderProps = {
 export function AuthenticatedHeader({ user }: AuthenticatedHeaderProps) {
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [logoutError, setLogoutError] = useState<string | null>(null)
 
   async function handleLogout() {
     setIsLoggingOut(true)
+    setLogoutError(null)
 
     try {
       await authClient.logout()
       router.replace('/login')
       router.refresh()
+    } catch {
+      setLogoutError('Não foi possível sair. Tente novamente.')
     } finally {
       setIsLoggingOut(false)
     }
@@ -39,6 +43,14 @@ export function AuthenticatedHeader({ user }: AuthenticatedHeaderProps) {
           Sair
         </button>
       </div>
+      {logoutError ? (
+        <p
+          className="text-destructive mx-auto mt-2 max-w-7xl text-sm"
+          role="alert"
+        >
+          {logoutError}
+        </p>
+      ) : null}
     </header>
   )
 }
