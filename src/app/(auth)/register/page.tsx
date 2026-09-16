@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { getSafeNext } from '@/features/auth/client'
-import { AuthPageShell } from '@/features/auth/components'
+import { AuthPageShell, RegisterForm } from '@/features/auth/components'
 import { getCurrentUserBySessionToken } from '@/features/auth/services'
 import { SESSION_COOKIE_NAME } from '@/infra/http'
 
@@ -24,7 +24,7 @@ export default async function RegisterPage({
   return (
     <AuthPageShell
       title="Criar conta"
-      description="O cadastro estará disponível em breve."
+      description="Crie sua conta para começar a usar o Decknews."
       footer={
         <>
           Já tem uma conta?{' '}
@@ -37,9 +37,7 @@ export default async function RegisterPage({
         </>
       }
     >
-      <p className="text-muted-foreground text-sm">
-        Enquanto isso, use uma conta existente para acessar o Decknews.
-      </p>
+      <RegisterForm />
     </AuthPageShell>
   )
 }
