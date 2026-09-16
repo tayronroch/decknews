@@ -107,5 +107,8 @@
     "typescript-eslint": "^8.69.0"
   },
   "prettier": "@decknews/prettier",
-  "packageManager": "pnpm@11.25.0"
+  "packageManager": "pnpm@11.25.0",
+  "prisma": {
+    "seed": "node prisma/seed.cjs"
+  }
 }
