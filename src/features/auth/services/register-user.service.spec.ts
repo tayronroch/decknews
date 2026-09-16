@@ -42,7 +42,6 @@ describe('RegisterUserService', () => {
       name: 'Ada Lovelace',
       email: 'ada@example.com',
       passwordHash: '$argon2id$hashed-pass',
-      role: 'USER',
       createdAt: new Date('2026-09-07T23:00:00.000Z'),
       updatedAt: new Date('2026-09-07T23:00:00.000Z'),
     })
@@ -53,7 +52,6 @@ describe('RegisterUserService', () => {
       id: 123456789n,
       name: 'Ada Lovelace',
       email: 'ada@example.com',
-      role: 'USER',
       createdAt: new Date('2026-09-07T23:00:00.000Z'),
     })
     expect((result as Record<string, unknown>).passwordHash).toBeUndefined()

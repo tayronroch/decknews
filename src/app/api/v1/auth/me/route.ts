@@ -13,7 +13,6 @@ export async function GET(request: Request) {
         id: user.id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     }
 

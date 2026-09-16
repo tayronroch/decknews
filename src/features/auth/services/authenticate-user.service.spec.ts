@@ -57,7 +57,6 @@ describe('AuthenticateUserService', () => {
       id: dbUser.id,
       name: dbUser.name,
       email: dbUser.email,
-      role: dbUser.role,
     })
     expect((result as Record<string, unknown>).password).toBeUndefined()
     expect((result as Record<string, unknown>).passwordHash).toBeUndefined()
@@ -87,7 +86,6 @@ describe('AuthenticateUserService', () => {
       id: dbUser.id,
       name: dbUser.name,
       email: dbUser.email,
-      role: dbUser.role,
     })
     expect(mockPasswordHasher.hash).toHaveBeenCalledWith(
       'previous-pepper-password'

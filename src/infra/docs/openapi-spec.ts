@@ -12,6 +12,7 @@ export const openApiSpec = {
   servers: [{ url: '/' }],
   tags: [
     { name: 'Auth', description: 'Criação de contas.' },
+    { name: 'Admin', description: 'Administração de cargos e permissões.' },
     { name: 'Status', description: 'Disponibilidade da aplicação.' },
   ],
   paths: {
@@ -102,6 +103,96 @@ export const openApiSpec = {
         },
       },
     },
+    '/api/v1/admin/roles': {
+      get: {
+        tags: ['Admin'],
+        operationId: 'listRoles',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '200': { description: 'Cargos.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+      post: {
+        tags: ['Admin'],
+        operationId: 'createRole',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '201': { description: 'Cargo criado.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+    },
+    '/api/v1/admin/roles/{id}': {
+      patch: {
+        tags: ['Admin'],
+        operationId: 'updateRole',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '200': { description: 'Cargo atualizado.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+      delete: {
+        tags: ['Admin'],
+        operationId: 'deleteRole',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '204': { description: 'Cargo removido.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+    },
+    '/api/v1/admin/permissions': {
+      get: {
+        tags: ['Admin'],
+        operationId: 'listPermissions',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '200': { description: 'Permissões.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+    },
+    '/api/v1/admin/roles/{id}/permissions': {
+      put: {
+        tags: ['Admin'],
+        operationId: 'replaceRolePermissions',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '204': { description: 'Permissões atualizadas.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+    },
+    '/api/v1/admin/users/{id}/roles': {
+      get: {
+        tags: ['Admin'],
+        operationId: 'listUserRoles',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '200': { description: 'Cargos do usuário.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+      put: {
+        tags: ['Admin'],
+        operationId: 'replaceUserRoles',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '204': { description: 'Cargos atualizados.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+    },
     '/api/v1/status': {
       get: {
         tags: ['Status'],
@@ -181,12 +272,11 @@ export const openApiSpec = {
       User: {
         type: 'object',
         additionalProperties: false,
-        required: ['id', 'name', 'email', 'role', 'createdAt'],
+        required: ['id', 'name', 'email', 'createdAt'],
         properties: {
           id: { type: 'string', example: '987654321012345678' },
           name: { type: 'string' },
           email: { type: 'string', format: 'email' },
-          role: { type: 'string', enum: ['USER', 'ADMIN'] },
           createdAt: { type: 'string', format: 'date-time' },
         },
       },
@@ -206,12 +296,11 @@ export const openApiSpec = {
           user: {
             type: 'object',
             additionalProperties: false,
-            required: ['id', 'name', 'email', 'role'],
+            required: ['id', 'name', 'email'],
             properties: {
               id: { type: 'string', example: '987654321012345678' },
               name: { type: 'string' },
               email: { type: 'string', format: 'email' },
-              role: { type: 'string', enum: ['USER', 'ADMIN'] },
             },
           },
         },
@@ -277,6 +366,12 @@ export const openApiSpec = {
       },
       UnauthorizedError: {
         description: 'Credenciais inválidas.',
+        content: {
+          [json]: { schema: { $ref: '#/components/schemas/ErrorResponse' } },
+        },
+      },
+      ForbiddenError: {
+        description: 'Acesso negado.',
         content: {
           [json]: { schema: { $ref: '#/components/schemas/ErrorResponse' } },
         },

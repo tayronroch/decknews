@@ -2,7 +2,6 @@ import type {
   CreateUserRepositoryInput,
   UserAuthRecord,
   UserRecord,
-  UserRole,
 } from '@/features/users/types'
 import { getUniqueConstraintFields, prisma } from '@/infra/database'
 import { UniqueConstraintError } from '@/shared/errors/persistence'
@@ -15,7 +14,6 @@ type PersistedUser = {
   id: bigint
   name: string
   email: string
-  role: string
   createdAt: Date
   updatedAt: Date
 }
@@ -28,7 +26,6 @@ const USER_PUBLIC_FIELDS = {
   id: true,
   name: true,
   email: true,
-  role: true,
   createdAt: true,
   updatedAt: true,
 } as const
@@ -47,7 +44,6 @@ function toUserRecord(user: PersistedUser): UserRecord {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role as UserRole,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   }
@@ -58,7 +54,6 @@ function toUserAuthRecord(user: PersistedAuthUser): UserAuthRecord {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role as UserRole,
     passwordHash: user.passwordHash,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
@@ -121,6 +116,13 @@ export async function createUser(
         name: input.name,
         email: input.email,
         passwordHash: input.passwordHash,
+        roles: {
+          create: {
+            role: {
+              connect: { name: 'Usuário' },
+            },
+          },
+        },
       },
       select: USER_PUBLIC_FIELDS,
     })

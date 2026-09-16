@@ -32,7 +32,6 @@ const expectedPublicSelect = {
   id: true,
   name: true,
   email: true,
-  role: true,
   createdAt: true,
   updatedAt: true,
 }
@@ -56,7 +55,6 @@ const publicUser = {
   id: dbUser.id,
   name: dbUser.name,
   email: dbUser.email,
-  role: dbUser.role,
   createdAt: dbUser.createdAt,
   updatedAt: dbUser.updatedAt,
 }
@@ -158,7 +156,14 @@ describe('UserRepository', () => {
 
       const result = await findUserAuthByEmail(dbUser.email)
 
-      expect(result).toEqual(dbUser)
+      expect(result).toEqual({
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        passwordHash: dbUser.passwordHash,
+        createdAt: dbUser.createdAt,
+        updatedAt: dbUser.updatedAt,
+      })
       expect(result?.passwordHash).toBe('hashed-value')
     })
 
@@ -214,6 +219,13 @@ describe('UserRepository', () => {
           name: input.name,
           email: input.email,
           passwordHash: input.passwordHash,
+          roles: {
+            create: {
+              role: {
+                connect: { name: 'Usuário' },
+              },
+            },
+          },
         },
         select: expectedPublicSelect,
       })

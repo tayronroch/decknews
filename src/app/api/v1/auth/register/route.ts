@@ -24,7 +24,6 @@ export async function POST(request: Request) {
         id: user.id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
         createdAt: user.createdAt.toISOString(),
       },
     }

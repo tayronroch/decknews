@@ -25,6 +25,8 @@ describe('GET /api/v1/openapi.json', () => {
         '/api/v1/auth/login': expect.any(Object),
         '/api/v1/auth/me': expect.any(Object),
         '/api/v1/auth/logout': expect.any(Object),
+        '/api/v1/admin/roles': expect.any(Object),
+        '/api/v1/admin/permissions': expect.any(Object),
         '/api/v1/status': expect.any(Object),
         '/api/v1/health': expect.any(Object),
       })
