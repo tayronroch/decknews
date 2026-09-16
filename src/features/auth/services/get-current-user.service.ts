@@ -6,26 +6,25 @@ import { extractSessionToken } from '@/infra/http'
 
 export type AuthenticatedUser = Pick<UserRecord, 'id' | 'name' | 'email'>
 
-export async function getCurrentUser(
-  request: Request
+export async function getCurrentUserBySessionToken(
+  token: string | null | undefined
 ): Promise<AuthenticatedUser | null> {
-  const token = extractSessionToken(request)
-  if (!token) {
-    return null
-  }
+  if (!token) return null
 
   const result = await validateSessionService.execute(token)
-  if (!result) {
-    return null
-  }
+  if (!result) return null
 
   const user = await userRepository.findUserById(result.session.userId)
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   const { id, name, email } = user
   return { id, name, email }
+}
+
+export async function getCurrentUser(
+  request: Request
+): Promise<AuthenticatedUser | null> {
+  return getCurrentUserBySessionToken(extractSessionToken(request))
 }
 
 export async function requireAuthenticatedUser(

@@ -10,6 +10,7 @@ import { SESSION_COOKIE_NAME } from '@/infra/http'
 
 import {
   getCurrentUser,
+  getCurrentUserBySessionToken,
   requireAuthenticatedUser,
 } from './get-current-user.service'
 
@@ -65,6 +66,23 @@ describe('current authenticated user', () => {
     await expect(
       getCurrentUser(new Request('http://localhost:3000'))
     ).resolves.toBeNull()
+  })
+
+  it('resolves a user directly from a session token for server components', async () => {
+    jest
+      .spyOn(validateSessionService, 'execute')
+      .mockResolvedValueOnce(validatedSession)
+    jest
+      .spyOn(userRepository, 'findUserById')
+      .mockResolvedValueOnce(authenticatedUser)
+
+    await expect(
+      getCurrentUserBySessionToken('valid-session-token')
+    ).resolves.toEqual({
+      id: 987654321012345678n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
   })
 
   it('returns null when the session token is invalid', async () => {
