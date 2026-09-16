@@ -1,4 +1,4 @@
-import { AuthClientError, authClient, getSafeNext } from './auth-client'
+import { authClient, AuthClientError, getSafeNext } from './auth-client'
 
 describe('auth client', () => {
   const fetchMock = jest.fn<typeof fetch>()
@@ -28,6 +28,8 @@ describe('auth client', () => {
   it('allows only safe same-origin destinations', () => {
     expect(getSafeNext('/admin/roles')).toBe('/admin/roles')
     expect(getSafeNext('//evil.example')).toBe('/admin')
+    expect(getSafeNext('/\\evil.example')).toBe('/admin')
+    expect(getSafeNext('/%5C%5Cevil.example')).toBe('/admin')
     expect(getSafeNext('https://evil.example')).toBe('/admin')
     expect(getSafeNext(null)).toBe('/admin')
   })

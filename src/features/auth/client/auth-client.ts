@@ -13,7 +13,19 @@ export class AuthClientError extends Error {
 }
 
 export function getSafeNext(value: string | null | undefined): string {
-  return value?.startsWith('/') && !value.startsWith('//') ? value : '/admin'
+  if (!value?.startsWith('/')) return '/admin'
+
+  try {
+    const decodedValue = decodeURIComponent(value)
+
+    return decodedValue.startsWith('/') &&
+      !decodedValue.startsWith('//') &&
+      !decodedValue.includes('\\')
+      ? value
+      : '/admin'
+  } catch {
+    return '/admin'
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
