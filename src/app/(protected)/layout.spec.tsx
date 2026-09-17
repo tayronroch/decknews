@@ -1,9 +1,10 @@
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 import { getCurrentUserBySessionToken } from '@/features/auth/services'
-import { requirePermission } from '@/features/rbac/services'
+import { listEffectivePermissionKeys } from '@/features/rbac/services'
 
 import AdminPage from './admin/page'
 import AdminRolesPage from './admin/roles/page'
@@ -20,7 +21,9 @@ jest.mock('@/features/auth/services/get-current-user.service', () => ({
   getCurrentUserBySessionToken: (token: string | undefined) =>
     mockGetCurrentUserBySessionToken(token),
 }))
-jest.mock('@/features/rbac/services', () => ({ requirePermission: jest.fn() }))
+jest.mock('@/features/rbac/services', () => ({
+  listEffectivePermissionKeys: jest.fn(),
+}))
 jest.mock('@/features/rbac/components', () => ({ RoleManager: () => null }))
 jest.mock('@/infra/http', () => ({ SESSION_COOKIE_NAME: 'decknews_session' }))
 
@@ -29,6 +32,7 @@ const mockRedirect = jest.mocked(redirect)
 const mockGetCurrentUserBySessionToken = jest.mocked(
   getCurrentUserBySessionToken
 )
+const mockListEffectivePermissionKeys = jest.mocked(listEffectivePermissionKeys)
 
 describe('ProtectedLayout', () => {
   const redirectError = new Error('redirect')
@@ -44,6 +48,7 @@ describe('ProtectedLayout', () => {
     mockRedirect.mockImplementation(() => {
       throw redirectError
     })
+    mockListEffectivePermissionKeys.mockResolvedValue(['role.read'])
   })
 
   it.each([
@@ -67,12 +72,12 @@ describe('ProtectedLayout', () => {
       expect(mockRedirect).toHaveBeenCalledWith(
         `/login?next=${encodeURIComponent(pathname)}`
       )
-      expect(requirePermission).not.toHaveBeenCalled()
+      expect(mockListEffectivePermissionKeys).not.toHaveBeenCalled()
       expect(headers).not.toHaveBeenCalled()
     }
   )
 
-  it('checks roles permission only after confirming a page session', async () => {
+  it('resolves the viewer permissions only after confirming a page session', async () => {
     const user = { id: 1n, name: 'Ada Lovelace', email: 'ada@example.com' }
     mockCookies.mockResolvedValue({
       get: jest.fn().mockReturnValue({ value: 'valid-token' }),
@@ -81,8 +86,52 @@ describe('ProtectedLayout', () => {
 
     await AdminRolesPage()
 
-    expect(requirePermission).toHaveBeenCalledWith(user, 'role.read')
+    expect(mockListEffectivePermissionKeys).toHaveBeenCalledWith(user)
     expect(mockRedirect).not.toHaveBeenCalled()
+  })
+
+  it('denies the roles panel to a session without role.read', async () => {
+    mockCookies.mockResolvedValue({
+      get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>)
+    mockGetCurrentUserBySessionToken.mockResolvedValue({
+      id: 1n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
+    mockListEffectivePermissionKeys.mockResolvedValue(['post.read'])
+
+    const result = await AdminRolesPage()
+
+    expect(renderToStaticMarkup(result as ReactElement)).toContain(
+      'Acesso não autorizado'
+    )
+  })
+
+  it('passes the server-resolved capabilities to the roles panel', async () => {
+    mockCookies.mockResolvedValue({
+      get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>)
+    mockGetCurrentUserBySessionToken.mockResolvedValue({
+      id: 1n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
+    mockListEffectivePermissionKeys.mockResolvedValue([
+      'role.read',
+      'role.update',
+    ])
+
+    const result = (await AdminRolesPage()) as {
+      props: { capabilities: Record<string, boolean> }
+    }
+
+    expect(result.props.capabilities).toEqual({
+      canCreate: false,
+      canUpdate: true,
+      canDelete: false,
+      canManagePermissions: false,
+    })
   })
 
   it('renders authenticated content for a valid session', async () => {

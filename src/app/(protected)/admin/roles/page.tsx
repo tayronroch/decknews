@@ -1,15 +1,13 @@
 import { requirePageUser } from '@/features/auth/services/require-page-user'
 import { RoleManager } from '@/features/rbac/components'
-import { requirePermission } from '@/features/rbac/services'
-import { ForbiddenError } from '@/infra/errors'
+import { listEffectivePermissionKeys } from '@/features/rbac/services'
 
 export default async function AdminRolesPage() {
   const user = await requirePageUser('/admin/roles')
+  // Server-resolved: the panel only adjusts the experience, the API still authorizes.
+  const granted = new Set(await listEffectivePermissionKeys(user))
 
-  try {
-    await requirePermission(user, 'role.read')
-  } catch (error) {
-    if (!(error instanceof ForbiddenError)) throw error
+  if (!granted.has('role.read')) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl items-center p-6">
         <section className="w-full rounded-xl border p-8 text-center">
@@ -22,5 +20,14 @@ export default async function AdminRolesPage() {
     )
   }
 
-  return <RoleManager />
+  return (
+    <RoleManager
+      capabilities={{
+        canCreate: granted.has('role.create'),
+        canUpdate: granted.has('role.update'),
+        canDelete: granted.has('role.delete'),
+        canManagePermissions: granted.has('role.permissions.manage'),
+      }}
+    />
+  )
 }
