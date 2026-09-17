@@ -211,7 +211,9 @@ export const openApiSpec = {
             },
           },
           '401': { $ref: '#/components/responses/MigrationUnauthorizedError' },
-          '500': { $ref: '#/components/responses/MigrationInternalServerError' },
+          '500': {
+            $ref: '#/components/responses/MigrationInternalServerError',
+          },
         },
       },
       post: {
@@ -232,7 +234,9 @@ export const openApiSpec = {
           },
           '401': { $ref: '#/components/responses/MigrationUnauthorizedError' },
           '409': { $ref: '#/components/responses/MigrationConflictError' },
-          '500': { $ref: '#/components/responses/MigrationInternalServerError' },
+          '500': {
+            $ref: '#/components/responses/MigrationInternalServerError',
+          },
         },
       },
     },
