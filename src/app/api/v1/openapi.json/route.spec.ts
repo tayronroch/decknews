@@ -27,6 +27,7 @@ describe('GET /api/v1/openapi.json', () => {
         '/api/v1/auth/logout': expect.any(Object),
         '/api/v1/admin/roles': expect.any(Object),
         '/api/v1/admin/permissions': expect.any(Object),
+        '/api/v1/admin/migrations': expect.any(Object),
         '/api/v1/status': expect.any(Object),
         '/api/v1/health': expect.any(Object),
       })
@@ -102,6 +103,30 @@ describe('GET /api/v1/openapi.json', () => {
           description: 'Sessão encerrada com sucesso.',
         },
       },
+    })
+  })
+
+  it('documents the remote migrations endpoint with migrationToken security', async () => {
+    const spec = await GET().json()
+
+    expect(spec.paths['/api/v1/admin/migrations']).toEqual(
+      expect.objectContaining({
+        get: expect.objectContaining({
+          tags: ['Admin'],
+          operationId: 'checkMigrations',
+          security: [{ migrationToken: [] }],
+        }),
+        post: expect.objectContaining({
+          tags: ['Admin'],
+          operationId: 'runMigrations',
+          security: [{ migrationToken: [] }],
+        }),
+      })
+    )
+    expect(spec.components.securitySchemes.migrationToken).toEqual({
+      type: 'http',
+      scheme: 'bearer',
+      description: 'Token de migração configurado em MIGRATION_TOKEN.',
     })
   })
 
