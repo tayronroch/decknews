@@ -90,11 +90,19 @@ function isSchemaUpToDate(output: string): boolean {
   )
 }
 
-export async function checkMigrationStatus(): Promise<{
+export type MigrationStatusResponse = {
   status: 'up_to_date' | 'pending'
   message: string
   output: string
-}> {
+}
+
+export type MigrationRunResponse = {
+  status: 'success'
+  message: string
+  output: string
+}
+
+export async function checkMigrationStatus(): Promise<MigrationStatusResponse> {
   try {
     const { stdout, stderr } = await executePrisma(['migrate', 'status'])
     const combinedOutput = `${stdout}\n${stderr}`.trim()
@@ -135,11 +143,7 @@ export async function checkMigrationStatus(): Promise<{
   }
 }
 
-export async function runPendingMigrations(): Promise<{
-  status: 'success'
-  message: string
-  output: string
-}> {
+export async function runPendingMigrations(): Promise<MigrationRunResponse> {
   if (isMigrating) {
     throw new MigrationInProgressError()
   }

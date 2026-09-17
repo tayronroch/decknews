@@ -403,9 +403,28 @@ export const openApiSpec = {
         additionalProperties: false,
         required: ['status', 'message', 'output'],
         properties: {
-          status: { type: 'string', enum: ['up_to_date', 'pending'] },
-          message: { type: 'string' },
-          output: { type: 'string' },
+          status: {
+            type: 'string',
+            enum: ['up_to_date', 'pending'],
+            example: 'up_to_date',
+            description:
+              'Indica se o schema está sincronizado ou se há migrações pendentes.',
+          },
+          message: {
+            type: 'string',
+            example: 'Database schema is up to date.',
+            description: 'Mensagem descritiva do status.',
+          },
+          output: {
+            type: 'string',
+            example: 'Database schema is up to date!\nNo pending migrations.',
+            description: 'Saída bruta de verificação gerada pelo Prisma.',
+          },
+        },
+        example: {
+          status: 'up_to_date',
+          message: 'Database schema is up to date.',
+          output: 'Database schema is up to date!\nNo pending migrations.',
         },
       },
       MigrationRunResponse: {
@@ -413,9 +432,29 @@ export const openApiSpec = {
         additionalProperties: false,
         required: ['status', 'message', 'output'],
         properties: {
-          status: { type: 'string', enum: ['success'] },
-          message: { type: 'string' },
-          output: { type: 'string' },
+          status: {
+            type: 'string',
+            enum: ['success'],
+            example: 'success',
+            description: 'Indica que as migrações foram aplicadas com sucesso.',
+          },
+          message: {
+            type: 'string',
+            example: 'Migrations executed successfully.',
+            description: 'Mensagem descritiva de sucesso.',
+          },
+          output: {
+            type: 'string',
+            example:
+              'Applying migration `20260916_init`...\nAll migrations have been successfully applied.',
+            description: 'Log de execução gerado pelo Prisma.',
+          },
+        },
+        example: {
+          status: 'success',
+          message: 'Migrations executed successfully.',
+          output:
+            'Applying migration `20260916_init`...\nAll migrations have been successfully applied.',
         },
       },
     },
