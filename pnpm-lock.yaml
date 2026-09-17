@@ -26,6 +26,9 @@ importers:
       '@prisma/client':
         specifier: ^6.19.3
         version: 6.19.3(prisma@6.19.3(typescript@7.0.2))(typescript@7.0.2)
+      '@prisma/engines':
+        specifier: ^6.19.3
+        version: 6.19.3
       '@sapphire/snowflake':
         specifier: ^3.5.5
         version: 3.5.5
