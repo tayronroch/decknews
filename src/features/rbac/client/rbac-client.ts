@@ -68,10 +68,13 @@ export const rbacClient = {
     input: { name?: string; description?: string | null }
   ): Promise<RoleSummaryDto> {
     return (
-      await request<{ role: RoleSummaryDto }>(`${ADMIN_BASE_PATH}/roles/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(input),
-      })
+      await request<{ role: RoleSummaryDto }>(
+        `${ADMIN_BASE_PATH}/roles/${id}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(input),
+        }
+      )
     ).role
   },
 

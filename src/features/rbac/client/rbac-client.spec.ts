@@ -65,7 +65,10 @@ describe('rbacClient', () => {
       '/api/v1/admin/roles',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ name: 'Editor', description: 'Cargo editorial' }),
+        body: JSON.stringify({
+          name: 'Editor',
+          description: 'Cargo editorial',
+        }),
       })
     )
   })
