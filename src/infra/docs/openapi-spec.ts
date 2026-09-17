@@ -197,7 +197,6 @@ export const openApiSpec = {
       get: {
         tags: ['Admin'],
         operationId: 'checkMigrations',
-        description: 'Inspeciona o status das migrações do banco (dry-run)',
         security: [{ migrationToken: [] }],
         responses: {
           '200': {
@@ -219,7 +218,6 @@ export const openApiSpec = {
       post: {
         tags: ['Admin'],
         operationId: 'runMigrations',
-        description: 'Executa as migrações pendentes no banco de dados',
         security: [{ migrationToken: [] }],
         responses: {
           '200': {

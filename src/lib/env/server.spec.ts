@@ -19,6 +19,8 @@ describe('env/server', () => {
     process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
     process.env.PORT = '3000'
     delete process.env.DATABASE_POOL_SIZE
+    delete process.env.MIGRATION_TOKEN
+    delete process.env.PASSWORD_PEPPER_PREVIOUS
 
     const { env } = await import('./server')
 
