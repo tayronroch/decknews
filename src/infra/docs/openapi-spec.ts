@@ -193,6 +193,49 @@ export const openApiSpec = {
         },
       },
     },
+    '/api/v1/admin/migrations': {
+      get: {
+        tags: ['Admin'],
+        operationId: 'checkMigrations',
+        summary: 'Inspeciona o status das migrações do banco (dry-run)',
+        security: [{ migrationToken: [] }],
+        responses: {
+          '200': {
+            description: 'Status das migrações obtido com sucesso.',
+            content: {
+              [json]: {
+                schema: {
+                  $ref: '#/components/schemas/MigrationStatusResponse',
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+      post: {
+        tags: ['Admin'],
+        operationId: 'runMigrations',
+        summary: 'Executa as migrações pendentes no banco de dados',
+        security: [{ migrationToken: [] }],
+        responses: {
+          '200': {
+            description: 'Migrações aplicadas com sucesso.',
+            content: {
+              [json]: {
+                schema: {
+                  $ref: '#/components/schemas/MigrationRunResponse',
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '409': { $ref: '#/components/responses/ConflictError' },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+    },
     '/api/v1/status': {
       get: {
         tags: ['Status'],
@@ -237,6 +280,11 @@ export const openApiSpec = {
         type: 'apiKey',
         in: 'cookie',
         name: 'decknews_session',
+      },
+      migrationToken: {
+        type: 'http',
+        scheme: 'bearer',
+        description: 'Token de migração configurado em MIGRATION_TOKEN.',
       },
     },
     schemas: {
@@ -348,6 +396,26 @@ export const openApiSpec = {
           status: { type: 'string', enum: ['ok'] },
           version: { type: 'string', enum: ['v1'] },
           timestamp: { type: 'string', format: 'date-time' },
+        },
+      },
+      MigrationStatusResponse: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['status', 'message', 'output'],
+        properties: {
+          status: { type: 'string', enum: ['up_to_date', 'pending'] },
+          message: { type: 'string' },
+          output: { type: 'string' },
+        },
+      },
+      MigrationRunResponse: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['status', 'message', 'output'],
+        properties: {
+          status: { type: 'string', enum: ['success'] },
+          message: { type: 'string' },
+          output: { type: 'string' },
         },
       },
     },
