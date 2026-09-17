@@ -95,8 +95,12 @@ describe('PermissionList', () => {
     expect(container.textContent).toContain('Posts')
     expect(container.textContent).toContain('Criar postagens')
     expect(container.textContent).toContain('post.create')
-    expect(checkbox(container, 'Visualizar postagens').getAttribute('aria-checked')).toBe('true')
-    expect(checkbox(container, 'Criar postagens').getAttribute('aria-checked')).toBe('false')
+    expect(
+      checkbox(container, 'Visualizar postagens').getAttribute('aria-checked')
+    ).toBe('true')
+    expect(
+      checkbox(container, 'Criar postagens').getAttribute('aria-checked')
+    ).toBe('false')
   })
 
   it('reports the toggled permission key', async () => {
