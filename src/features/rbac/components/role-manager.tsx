@@ -84,6 +84,8 @@ export function RoleManager({
   }, [load])
 
   function upsertRole(saved: RoleDto) {
+    // Untouched roles keep their object identity so RoleCard's savedKeys
+    // effect (keyed on `role`) doesn't fire and wipe unsaved local edits.
     setRoles((current) =>
       current.some((role) => role.id === saved.id)
         ? current.map((role) => (role.id === saved.id ? saved : role))
