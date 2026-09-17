@@ -48,6 +48,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@node-rs/argon2": "^2.2.0",
     "@prisma/client": "^6.19.3",
+    "@prisma/engines": "^6.19.3",
     "@sapphire/snowflake": "^3.5.5",
     "@scalar/nextjs-api-reference": "0.11.18",
     "@shadcn/react": "^0.3.1",
