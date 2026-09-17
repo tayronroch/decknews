@@ -15,10 +15,7 @@ export async function hasPermission(
   user: AuthenticatedUser | null,
   permission: string
 ): Promise<boolean> {
-  if (!user) return false
-  return (await rbacRepository.findEffectiveKeysByUserId(user.id)).has(
-    permission
-  )
+  return (await listEffectivePermissionKeys(user)).includes(permission)
 }
 
 export async function requirePermission(
