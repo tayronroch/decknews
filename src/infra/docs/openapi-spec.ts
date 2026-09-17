@@ -197,7 +197,7 @@ export const openApiSpec = {
       get: {
         tags: ['Admin'],
         operationId: 'checkMigrations',
-        summary: 'Inspeciona o status das migrações do banco (dry-run)',
+        description: 'Inspeciona o status das migrações do banco (dry-run)',
         security: [{ migrationToken: [] }],
         responses: {
           '200': {
@@ -210,14 +210,14 @@ export const openApiSpec = {
               },
             },
           },
-          '401': { $ref: '#/components/responses/UnauthorizedError' },
-          '500': { $ref: '#/components/responses/InternalServerError' },
+          '401': { $ref: '#/components/responses/MigrationUnauthorizedError' },
+          '500': { $ref: '#/components/responses/MigrationInternalServerError' },
         },
       },
       post: {
         tags: ['Admin'],
         operationId: 'runMigrations',
-        summary: 'Executa as migrações pendentes no banco de dados',
+        description: 'Executa as migrações pendentes no banco de dados',
         security: [{ migrationToken: [] }],
         responses: {
           '200': {
@@ -230,9 +230,9 @@ export const openApiSpec = {
               },
             },
           },
-          '401': { $ref: '#/components/responses/UnauthorizedError' },
-          '409': { $ref: '#/components/responses/ConflictError' },
-          '500': { $ref: '#/components/responses/InternalServerError' },
+          '401': { $ref: '#/components/responses/MigrationUnauthorizedError' },
+          '409': { $ref: '#/components/responses/MigrationConflictError' },
+          '500': { $ref: '#/components/responses/MigrationInternalServerError' },
         },
       },
     },
@@ -457,6 +457,33 @@ export const openApiSpec = {
             'Applying migration `20260916_init`...\nAll migrations have been successfully applied.',
         },
       },
+      MigrationErrorResponse: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['error', 'message'],
+        properties: {
+          error: {
+            type: 'string',
+            example: 'Unauthorized',
+            description: 'Código curto identificando o tipo de erro.',
+          },
+          message: {
+            type: 'string',
+            example: 'Invalid migration token.',
+            description: 'Mensagem descritiva do erro.',
+          },
+          details: {
+            type: 'string',
+            example: 'P3006: Migration failed to apply cleanly',
+            description:
+              'Detalhes adicionais gerados pelo Prisma, presentes apenas em falhas de execução.',
+          },
+        },
+        example: {
+          error: 'Unauthorized',
+          message: 'Invalid migration token.',
+        },
+      },
     },
     responses: {
       ValidationError: {
@@ -493,6 +520,30 @@ export const openApiSpec = {
         description: 'Serviço temporariamente indisponível.',
         content: {
           [json]: { schema: { $ref: '#/components/schemas/ErrorResponse' } },
+        },
+      },
+      MigrationUnauthorizedError: {
+        description: 'Token de migração ausente ou inválido.',
+        content: {
+          [json]: {
+            schema: { $ref: '#/components/schemas/MigrationErrorResponse' },
+          },
+        },
+      },
+      MigrationConflictError: {
+        description: 'Já existe uma execução de migração em andamento.',
+        content: {
+          [json]: {
+            schema: { $ref: '#/components/schemas/MigrationErrorResponse' },
+          },
+        },
+      },
+      MigrationInternalServerError: {
+        description: 'Erro ao inspecionar ou aplicar as migrações.',
+        content: {
+          [json]: {
+            schema: { $ref: '#/components/schemas/MigrationErrorResponse' },
+          },
         },
       },
     },
