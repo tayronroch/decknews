@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ReactNode } from 'react'
 
+import { NavigationProgressBar } from '@/components/layout'
 import { ThemeProvider } from '@/components/theme'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
+          <NavigationProgressBar />
           {children}
           <Toaster />
         </ThemeProvider>
