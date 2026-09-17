@@ -279,6 +279,87 @@ describe('RoleForm', () => {
     expect(onClose).not.toHaveBeenCalled()
   })
 
+  it('still adds the role to the grid when only the permissions write fails on create', async () => {
+    mockCreateRole.mockResolvedValue({
+      id: '9',
+      name: 'Editor de Conteúdo',
+      description: null,
+      isSystem: false,
+      permissions: [],
+    })
+    mockReplacePermissions.mockRejectedValue(
+      new Error('Você não tem permissão para realizar esta ação.')
+    )
+
+    await render()
+
+    await act(async () => {
+      changeInput(field<HTMLInputElement>('#role-name'), 'Editor de Conteúdo')
+    })
+    await act(async () => {
+      checkbox('Criar postagens').click()
+    })
+    await submit()
+
+    expect(mockCreateRole).toHaveBeenCalledTimes(1)
+    expect(mockReplacePermissions).toHaveBeenCalledWith('9', ['post.create'])
+    expect(onSaved).toHaveBeenCalledWith({
+      id: '9',
+      name: 'Editor de Conteúdo',
+      description: null,
+      isSystem: false,
+      permissions: [],
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(toast.error).toHaveBeenCalledWith(
+      'Cargo criado, mas não foi possível salvar as permissões: Você não tem permissão para realizar esta ação.'
+    )
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it('still updates the grid when only the permissions write fails on edit', async () => {
+    mockUpdateRole.mockResolvedValue({
+      id: '1',
+      name: 'Editor sênior',
+      description: 'Cargo editorial',
+      isSystem: false,
+    })
+    mockReplacePermissions.mockRejectedValue(
+      new Error('Não é possível remover o último gerente de cargos.')
+    )
+
+    await render({ role: editor })
+
+    await act(async () => {
+      changeInput(field<HTMLInputElement>('#role-name'), 'Editor sênior')
+    })
+    await act(async () => {
+      checkbox('Criar postagens').click()
+    })
+    await submit()
+
+    expect(mockUpdateRole).toHaveBeenCalledWith('1', {
+      name: 'Editor sênior',
+      description: 'Cargo editorial',
+    })
+    expect(mockReplacePermissions).toHaveBeenCalledWith('1', [
+      'post.read',
+      'post.create',
+    ])
+    expect(onSaved).toHaveBeenCalledWith({
+      id: '1',
+      name: 'Editor sênior',
+      description: 'Cargo editorial',
+      isSystem: false,
+      permissions: [readPosts],
+    })
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(toast.error).toHaveBeenCalledWith(
+      'Cargo atualizado, mas não foi possível salvar as permissões: Não é possível remover o último gerente de cargos.'
+    )
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
   it('filters the permissions shown in the dialog', async () => {
     await render()
 

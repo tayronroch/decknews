@@ -69,21 +69,18 @@ export function RoleForm({
     event.preventDefault()
     setSaving(true)
 
-    try {
-      const trimmedDescription = description.trim()
+    const trimmedDescription = description.trim()
+    let saved: RoleDto
 
+    // Step 1: the role itself. If this fails, nothing was persisted — keep
+    // the dialog open and report the error, same as before.
+    try {
       if (role) {
         const updated = await rbacClient.updateRole(role.id, {
           name: name.trim(),
           description: trimmedDescription === '' ? null : trimmedDescription,
         })
-        onSaved({
-          ...updated,
-          permissions: permissionsChanged
-            ? await persistPermissions(role.id)
-            : role.permissions,
-        })
-        toast.success('Cargo atualizado.')
+        saved = { ...updated, permissions: role.permissions }
       } else {
         const created = await rbacClient.createRole({
           name: name.trim(),
@@ -91,24 +88,45 @@ export function RoleForm({
             ? {}
             : { description: trimmedDescription }),
         })
-        onSaved({
-          ...created,
-          permissions:
-            canManagePermissions && selected.size > 0
-              ? await persistPermissions(created.id)
-              : created.permissions,
-        })
-        toast.success('Cargo criado.')
+        saved = created
       }
-
-      onClose()
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Não foi possível salvar.'
       )
-    } finally {
       setSaving(false)
+      return
     }
+
+    // Step 2: permissions, only when there's something to write. The role
+    // above already exists in the database at this point, so a failure here
+    // must not hide it from the grid or keep the dialog open — it only
+    // means permissions weren't the ones requested.
+    const shouldPersistPermissions = role
+      ? permissionsChanged
+      : canManagePermissions && selected.size > 0
+    const successMessage = role ? 'Cargo atualizado.' : 'Cargo criado.'
+
+    if (shouldPersistPermissions) {
+      try {
+        saved = { ...saved, permissions: await persistPermissions(saved.id) }
+        toast.success(successMessage)
+      } catch (error) {
+        const reason =
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível salvar as permissões.'
+        toast.error(
+          `${role ? 'Cargo atualizado' : 'Cargo criado'}, mas não foi possível salvar as permissões: ${reason}`
+        )
+      }
+    } else {
+      toast.success(successMessage)
+    }
+
+    onSaved(saved)
+    onClose()
+    setSaving(false)
   }
 
   return (
@@ -172,7 +190,11 @@ export function RoleForm({
               Cancelar
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? 'Salvando...' : 'Salvar alterações'}
+              {saving
+                ? 'Salvando...'
+                : role
+                  ? 'Salvar alterações'
+                  : 'Criar cargo'}
             </Button>
           </DialogFooter>
         </form>
