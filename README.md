@@ -208,6 +208,56 @@ O Compose da aplicação verifica sua disponibilidade em `/api/v1/health`. Essa
 sonda não depende do banco de dados; a disponibilidade da conexão PostgreSQL é
 exposta separadamente em `/api/v1/status`.
 
+### Migrações remotas (`/api/v1/admin/migrations`)
+
+Como o container de produção não expõe shell por padrão em todo provedor, as
+migrações do Prisma podem ser inspecionadas e aplicadas remotamente por essa
+rota, protegida por um token dedicado (`MIGRATION_TOKEN`, configurado no
+`.env` — ver `.env.example`):
+
+```bash
+# Inspeciona o status das migrações (dry-run, não altera o banco)
+curl https://<host>/api/v1/admin/migrations \
+  --header "Authorization: Bearer $MIGRATION_TOKEN"
+
+# Aplica as migrações pendentes (equivalente a `prisma migrate deploy`)
+curl --request POST https://<host>/api/v1/admin/migrations \
+  --header "Authorization: Bearer $MIGRATION_TOKEN"
+```
+
+O `GET` retorna `status: "up_to_date" | "pending"`; o `POST` retorna
+`status: "success"` quando todas as migrações são aplicadas. Erros (token
+ausente/inválido, migração já em andamento, falha do Prisma) vêm no formato
+`{ "error": string, "message": string, "details"?: string }` — ver o schema
+`MigrationErrorResponse` na [documentação da API](./src/infra/docs/openapi-spec.ts).
+
+### Criação do usuário administrador (`bootstrap-admin.mjs`)
+
+O primeiro usuário com papel de administrador não é criado por nenhuma rota
+HTTP — é um script de uso único (`infra/scripts/bootstrap-admin.mjs`) que deve
+ser executado dentro do container da aplicação, com acesso direto ao banco.
+
+Pré-requisito: as migrações já devem estar aplicadas (seção acima), pois é a
+migração `..._replace_user_role_with_rbac` que cria os papéis `Administrador`
+e `Usuário` usados pelo script.
+
+```bash
+# Acessando o shell do container em produção
+docker exec -it <container> sh
+
+# Dentro do container, defina as variáveis do admin e rode o script
+export BOOTSTRAP_ADMIN_NAME="Seu Nome"
+export BOOTSTRAP_ADMIN_EMAIL="seu-email@exemplo.com"
+export BOOTSTRAP_ADMIN_PASSWORD="senha-com-12-a-256-caracteres"
+node infra/scripts/bootstrap-admin.mjs
+```
+
+O script é idempotente: se o usuário já existir pelo e-mail, apenas garante o
+papel de `Administrador` (não recria nem altera a senha). Ele imprime
+`Administrador criado.` ou `Administrador configurado.` em caso de sucesso.
+As variáveis `BOOTSTRAP_ADMIN_*` são de uso único — não é necessário mantê-las
+no `.env` do container após a execução.
+
 ---
 
 ## ✅ Critérios de Aceite Atendidos
