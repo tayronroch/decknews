@@ -1,6 +1,7 @@
 'use client'
 
-import { PlusIcon } from 'lucide-react'
+import { ArrowLeftIcon, PlusIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -93,6 +94,12 @@ export function RoleManager({
     <main className="mx-auto min-h-screen max-w-7xl p-4 sm:p-8">
       <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          <Link
+            href="/admin"
+            className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-sm hover:underline"
+          >
+            <ArrowLeftIcon className="size-3.5" /> Voltar para o painel
+          </Link>
           <h1 className="text-3xl font-bold tracking-tight">
             Cargos e permissões
           </h1>

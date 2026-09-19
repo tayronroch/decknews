@@ -146,6 +146,14 @@ describe('UserRoleManager', () => {
     expect(container.textContent).toContain('Grace Hopper')
   })
 
+  it('explains that displaying and assigning roles also requires role.read when roles fail to load', async () => {
+    mockListRoles.mockRejectedValue(new Error('Falha ao carregar cargos'))
+
+    await render()
+
+    expect(container.textContent).toContain('permissão de visualizar cargos')
+  })
+
   it('retries both requests after a failure', async () => {
     mockListUsers.mockRejectedValueOnce(new Error('Falha ao carregar usuários'))
 

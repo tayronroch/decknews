@@ -23,7 +23,7 @@ export function AdminNav({ items }: { items: AdminNavItem[] }) {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <nav className="grid gap-4 sm:grid-cols-2">
       {items.map((item) => (
         <Link key={item.href} href={item.href}>
           <Card className="hover:bg-accent/50 h-full transition-colors">
@@ -34,6 +34,6 @@ export function AdminNav({ items }: { items: AdminNavItem[] }) {
           </Card>
         </Link>
       ))}
-    </div>
+    </nav>
   )
 }

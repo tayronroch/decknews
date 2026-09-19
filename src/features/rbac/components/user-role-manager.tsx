@@ -1,6 +1,7 @@
 'use client'
 
-import { SearchIcon } from 'lucide-react'
+import { ArrowLeftIcon, SearchIcon } from 'lucide-react'
+import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 
 import { Input } from '@/components/ui/input'
@@ -75,6 +76,12 @@ export function UserRoleManager({
   return (
     <main className="mx-auto min-h-screen max-w-7xl p-4 sm:p-8">
       <header className="mb-8">
+        <Link
+          href="/admin"
+          className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-sm hover:underline"
+        >
+          <ArrowLeftIcon className="size-3.5" /> Voltar para o painel
+        </Link>
         <h1 className="text-3xl font-bold tracking-tight">Usuários e cargos</h1>
         <p className="text-muted-foreground mt-2">
           Defina quais cargos cada pessoa tem na plataforma.
@@ -112,6 +119,7 @@ export function UserRoleManager({
         <LoadingError
           title="Não foi possível carregar os cargos"
           message={rolesError}
+          hint="Exibir e atribuir cargos também exige a permissão de visualizar cargos. Peça a um administrador para conceder esse acesso."
           onRetry={() => void load()}
         />
       )}
