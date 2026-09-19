@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { getCurrentUserBySessionToken } from '@/features/auth/services'
+import type { AdminNavItem } from '@/features/rbac/components'
 import { listEffectivePermissionKeys } from '@/features/rbac/services'
 
 import AdminPage from './admin/page'
@@ -26,6 +27,7 @@ jest.mock('@/features/rbac/services', () => ({
   listEffectivePermissionKeys: jest.fn(),
 }))
 jest.mock('@/features/rbac/components', () => ({
+  AdminNav: () => null,
   RoleManager: () => null,
   UserRoleManager: () => null,
 }))
@@ -178,6 +180,52 @@ describe('ProtectedLayout', () => {
     expect(result.props.capabilities).toEqual({
       canManageRoles: true,
     })
+  })
+
+  it('lists both administrative areas for a session with role.read and user.read', async () => {
+    mockCookies.mockResolvedValue({
+      get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>)
+    mockGetCurrentUserBySessionToken.mockResolvedValue({
+      id: 1n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
+    mockListEffectivePermissionKeys.mockResolvedValue([
+      'role.read',
+      'user.read',
+    ])
+
+    const result = (await AdminPage()) as {
+      props: { children: Array<{ props: { items: AdminNavItem[] } }> }
+    }
+    const nav = result.props.children[1]
+
+    expect(nav?.props.items).toHaveLength(2)
+    expect(nav?.props.items.map((item) => item.href)).toEqual([
+      '/admin/roles',
+      '/admin/users',
+    ])
+  })
+
+  it('lists only the roles area for a session with just role.read', async () => {
+    mockCookies.mockResolvedValue({
+      get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>)
+    mockGetCurrentUserBySessionToken.mockResolvedValue({
+      id: 1n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
+    mockListEffectivePermissionKeys.mockResolvedValue(['role.read'])
+
+    const result = (await AdminPage()) as {
+      props: { children: Array<{ props: { items: AdminNavItem[] } }> }
+    }
+    const nav = result.props.children[1]
+
+    expect(nav?.props.items).toHaveLength(1)
+    expect(nav?.props.items[0]?.href).toBe('/admin/roles')
   })
 
   it('renders authenticated content for a valid session', async () => {
