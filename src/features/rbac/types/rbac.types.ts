@@ -5,11 +5,14 @@ export type PermissionRecord = {
   module: string | null
 }
 
-export type RoleRecord = {
+export type RoleSummaryRecord = {
   id: bigint
   name: string
   description: string | null
   isSystem: boolean
+}
+
+export type RoleRecord = RoleSummaryRecord & {
   permissions: PermissionRecord[]
 }
 
@@ -18,5 +21,5 @@ export type AdminUserRecord = {
   name: string
   email: string
   createdAt: Date
-  roles: RoleRecord[]
+  roles: RoleSummaryRecord[]
 }

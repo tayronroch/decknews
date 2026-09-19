@@ -14,7 +14,6 @@ const administrator = {
   name: 'Administrador',
   description: 'Cargo administrativo',
   isSystem: true,
-  permissions: [],
 }
 
 describe('listUsersWithRoles', () => {

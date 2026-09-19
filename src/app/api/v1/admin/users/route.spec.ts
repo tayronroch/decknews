@@ -10,9 +10,15 @@ import { GET } from './route'
 jest.mock('@/features/auth/services', () => ({
   requireAuthenticatedUser: jest.fn(),
 }))
-jest.mock('@/features/rbac/services', () => ({
-  listUsersWithRoles: jest.fn(),
-}))
+jest.mock('@/features/rbac/services', () => {
+  const actual = jest.requireActual<typeof import('@/features/rbac/services')>(
+    '@/features/rbac/services'
+  )
+  return {
+    ...actual,
+    listUsersWithRoles: jest.fn(),
+  }
+})
 
 const mockRequireAuthenticatedUser = jest.mocked(requireAuthenticatedUser)
 const mockListUsersWithRoles = jest.mocked(listUsersWithRoles)
@@ -42,7 +48,6 @@ describe('GET /api/v1/admin/users', () => {
             name: 'Administrador',
             description: 'Acesso total',
             isSystem: true,
-            permissions: [],
           },
         ],
       },

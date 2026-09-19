@@ -4,8 +4,19 @@ import { ConflictError, NotFoundError } from '@/infra/errors'
 import { idGenerator } from '@/infra/id'
 
 import { rbacRepository } from '../repositories'
-import type { AdminUserRecord, RoleRecord } from '../types'
+import type { AdminUserRecord, RoleRecord, RoleSummaryRecord } from '../types'
 import { requirePermission } from './authorization.service'
+
+// Shared by the admin users routes: the JSON shape a role takes wherever
+// only its summary (not its permissions) is exposed.
+export function serializeRoleSummary(role: RoleSummaryRecord) {
+  return {
+    id: role.id.toString(),
+    name: role.name,
+    description: role.description,
+    isSystem: role.isSystem,
+  }
+}
 
 export async function listRoles(actor: AuthenticatedUser) {
   await requirePermission(actor, 'role.read')

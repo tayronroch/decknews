@@ -10,10 +10,16 @@ import { GET, PUT } from './route'
 jest.mock('@/features/auth/services', () => ({
   requireAuthenticatedUser: jest.fn(),
 }))
-jest.mock('@/features/rbac/services', () => ({
-  listUserRoles: jest.fn(),
-  replaceUserRoles: jest.fn(),
-}))
+jest.mock('@/features/rbac/services', () => {
+  const actual = jest.requireActual<typeof import('@/features/rbac/services')>(
+    '@/features/rbac/services'
+  )
+  return {
+    ...actual,
+    listUserRoles: jest.fn(),
+    replaceUserRoles: jest.fn(),
+  }
+})
 
 const mockRequireAuthenticatedUser = jest.mocked(requireAuthenticatedUser)
 const mockListUserRoles = jest.mocked(listUserRoles)
