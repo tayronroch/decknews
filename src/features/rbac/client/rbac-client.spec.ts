@@ -133,4 +133,43 @@ describe('rbacClient', () => {
       'Não foi possível concluir a operação.'
     )
   })
+
+  it('loads users with their roles from the admin API', async () => {
+    const user = {
+      id: '1',
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      roles: [
+        {
+          id: '10',
+          name: 'Administrador',
+          description: 'Cargo administrativo',
+          isSystem: true,
+        },
+      ],
+    }
+    fetchMock.mockResolvedValue(jsonResponse({ users: [user] }))
+
+    await expect(rbacClient.listUsers()).resolves.toEqual([user])
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/admin/users',
+      expect.objectContaining({ credentials: 'same-origin' })
+    )
+  })
+
+  it('replaces the roles of a user with decimal string ids', async () => {
+    fetchMock.mockResolvedValue({ ok: true, status: 204 } as Response)
+
+    await expect(
+      rbacClient.replaceUserRoles('1', ['10', '11'])
+    ).resolves.toBeUndefined()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/admin/users/1/roles',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({ roleIds: ['10', '11'] }),
+      })
+    )
+  })
 })

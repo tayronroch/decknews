@@ -1,4 +1,9 @@
-import type { PermissionDto, RoleDto, RoleSummaryDto } from '../types'
+import type {
+  AdminUserDto,
+  PermissionDto,
+  RoleDto,
+  RoleSummaryDto,
+} from '../types'
 
 const ADMIN_BASE_PATH = '/api/v1/admin'
 
@@ -86,6 +91,19 @@ export const rbacClient = {
     return request<void>(`${ADMIN_BASE_PATH}/roles/${id}/permissions`, {
       method: 'PUT',
       body: JSON.stringify({ permissions }),
+    })
+  },
+
+  async listUsers(): Promise<AdminUserDto[]> {
+    return (
+      await request<{ users: AdminUserDto[] }>(`${ADMIN_BASE_PATH}/users`)
+    ).users
+  },
+
+  replaceUserRoles(userId: string, roleIds: string[]): Promise<void> {
+    return request<void>(`${ADMIN_BASE_PATH}/users/${userId}/roles`, {
+      method: 'PUT',
+      body: JSON.stringify({ roleIds }),
     })
   },
 }

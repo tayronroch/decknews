@@ -23,3 +23,16 @@ export type RolePanelCapabilities = {
   canDelete: boolean
   canManagePermissions: boolean
 }
+
+export type AdminUserDto = {
+  id: string
+  name: string
+  email: string
+  // ISO 8601, serialized by the route handler.
+  createdAt: string
+  roles: RoleSummaryDto[]
+}
+
+export type UserPanelCapabilities = {
+  canManageRoles: boolean
+}
