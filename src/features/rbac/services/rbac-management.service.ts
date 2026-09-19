@@ -1,9 +1,10 @@
 import type { AuthenticatedUser } from '@/features/auth/services/get-current-user.service'
+import { userRepository } from '@/features/users/repositories'
 import { ConflictError, NotFoundError } from '@/infra/errors'
 import { idGenerator } from '@/infra/id'
 
 import { rbacRepository } from '../repositories'
-import type { RoleRecord } from '../types'
+import type { AdminUserRecord, RoleRecord } from '../types'
 import { requirePermission } from './authorization.service'
 
 export async function listRoles(actor: AuthenticatedUser) {
@@ -86,4 +87,26 @@ export async function replaceUserRoles(
     }
     throw error
   }
+}
+
+// One query for the users, one for every assignment: no N+1 per user.
+export async function listUsersWithRoles(
+  actor: AuthenticatedUser
+): Promise<AdminUserRecord[]> {
+  await requirePermission(actor, 'user.read')
+
+  const users = await userRepository.listUsers()
+  if (users.length === 0) return []
+
+  const rolesByUser = await rbacRepository.findRolesByUserIds(
+    users.map((user) => user.id)
+  )
+
+  return users.map(({ id, name, email, createdAt }) => ({
+    id,
+    name,
+    email,
+    createdAt,
+    roles: rolesByUser.get(id) ?? [],
+  }))
 }

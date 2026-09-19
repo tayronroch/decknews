@@ -12,3 +12,11 @@ export type RoleRecord = {
   isSystem: boolean
   permissions: PermissionRecord[]
 }
+
+export type AdminUserRecord = {
+  id: bigint
+  name: string
+  email: string
+  createdAt: Date
+  roles: RoleRecord[]
+}

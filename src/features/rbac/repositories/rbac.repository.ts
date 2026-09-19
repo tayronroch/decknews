@@ -50,6 +50,7 @@ export interface RbacRepository {
   replaceRolePermissions(roleId: bigint, keys: string[]): Promise<boolean>
   findUserRoles(userId: bigint): Promise<RoleRecord[]>
   replaceUserRoles(userId: bigint, roleIds: bigint[]): Promise<boolean>
+  findRolesByUserIds(userIds: bigint[]): Promise<Map<bigint, RoleRecord[]>>
 }
 
 export async function findEffectiveKeysByUserId(
@@ -211,6 +212,21 @@ export async function replaceUserRoles(
   return true
 }
 
+export async function findRolesByUserIds(
+  userIds: bigint[]
+): Promise<Map<bigint, RoleRecord[]>> {
+  const rows = await prisma.userRole.findMany({
+    where: { userId: { in: userIds } },
+    select: { userId: true, role: { select: roleFields } },
+  })
+
+  return rows.reduce((result, row) => {
+    const roles = result.get(row.userId) ?? []
+    roles.push(toRole(row.role))
+    return result.set(row.userId, roles)
+  }, new Map<bigint, RoleRecord[]>())
+}
+
 export const rbacRepository: RbacRepository = {
   findEffectiveKeysByUserId,
   listRoles,
@@ -222,4 +238,5 @@ export const rbacRepository: RbacRepository = {
   replaceRolePermissions,
   findUserRoles,
   replaceUserRoles,
+  findRolesByUserIds,
 }
