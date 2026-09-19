@@ -1,6 +1,6 @@
 'use client'
 
-import { PlusIcon, RefreshCwIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -9,31 +9,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 import { rbacClient } from '../client'
 import type { PermissionDto, RoleDto, RolePanelCapabilities } from '../types'
+import { LoadingError } from './loading-error'
 import { RoleCard } from './role-card'
 import { RoleForm } from './role-form'
 
 function messageOf(reason: unknown, fallback: string): string {
   return reason instanceof Error ? reason.message : fallback
-}
-
-function LoadingError({
-  title,
-  message,
-  onRetry,
-}: {
-  title: string
-  message: string
-  onRetry: () => void
-}) {
-  return (
-    <section className="border-destructive/50 mb-5 rounded-xl border p-6">
-      <h2 className="font-semibold">{title}</h2>
-      <p className="text-muted-foreground mt-1 text-sm">{message}</p>
-      <Button className="mt-4" variant="outline" onClick={onRetry}>
-        <RefreshCwIcon /> Tentar novamente
-      </Button>
-    </section>
-  )
 }
 
 export function RoleManager({

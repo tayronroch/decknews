@@ -8,6 +8,7 @@ import { listEffectivePermissionKeys } from '@/features/rbac/services'
 
 import AdminPage from './admin/page'
 import AdminRolesPage from './admin/roles/page'
+import AdminUsersPage from './admin/users/page'
 import ProtectedLayout from './layout'
 
 const sessionCookieName = 'decknews_session'
@@ -24,7 +25,10 @@ jest.mock('@/features/auth/services/get-current-user.service', () => ({
 jest.mock('@/features/rbac/services', () => ({
   listEffectivePermissionKeys: jest.fn(),
 }))
-jest.mock('@/features/rbac/components', () => ({ RoleManager: () => null }))
+jest.mock('@/features/rbac/components', () => ({
+  RoleManager: () => null,
+  UserRoleManager: () => null,
+}))
 jest.mock('@/infra/http', () => ({ SESSION_COOKIE_NAME: 'decknews_session' }))
 
 const mockCookies = jest.mocked(cookies)
@@ -54,6 +58,7 @@ describe('ProtectedLayout', () => {
   it.each([
     { page: AdminPage, pathname: '/admin' },
     { page: AdminRolesPage, pathname: '/admin/roles' },
+    { page: AdminUsersPage, pathname: '/admin/users' },
   ])(
     'redirects an unauthenticated $pathname visitor back to the requested page',
     async ({ page, pathname }) => {
@@ -131,6 +136,47 @@ describe('ProtectedLayout', () => {
       canUpdate: true,
       canDelete: false,
       canManagePermissions: false,
+    })
+  })
+
+  it('denies the users panel to a session without user.read', async () => {
+    mockCookies.mockResolvedValue({
+      get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>)
+    mockGetCurrentUserBySessionToken.mockResolvedValue({
+      id: 1n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
+    mockListEffectivePermissionKeys.mockResolvedValue(['role.read'])
+
+    const result = await AdminUsersPage()
+
+    expect(renderToStaticMarkup(result as ReactElement)).toContain(
+      'Acesso não autorizado'
+    )
+  })
+
+  it('passes the server-resolved capabilities to the users panel', async () => {
+    mockCookies.mockResolvedValue({
+      get: jest.fn().mockReturnValue({ value: 'valid-token' }),
+    } as unknown as Awaited<ReturnType<typeof cookies>>)
+    mockGetCurrentUserBySessionToken.mockResolvedValue({
+      id: 1n,
+      name: 'Ada Lovelace',
+      email: 'ada@example.com',
+    })
+    mockListEffectivePermissionKeys.mockResolvedValue([
+      'user.read',
+      'user.manage',
+    ])
+
+    const result = (await AdminUsersPage()) as {
+      props: { capabilities: Record<string, boolean> }
+    }
+
+    expect(result.props.capabilities).toEqual({
+      canManageRoles: true,
     })
   })
 
