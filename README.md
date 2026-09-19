@@ -161,34 +161,38 @@ pnpm start
 
 ## Scripts de Qualidade de Código
 
-| Script                        | Descrição                                                   |
-| :---------------------------- | :---------------------------------------------------------- |
-| `pnpm dev`                    | Sobe o banco, aguarda conexões e inicia Next.js em dev      |
-| `pnpm services:up`            | Inicia os containers Docker de suporte (PostgreSQL 17)      |
-| `pnpm services:down`          | Para e remove os containers e redes de suporte              |
-| `pnpm services:stop`          | Para a execução dos containers sem remover os dados         |
-| `pnpm services:wait:database` | Aguarda o PostgreSQL estar pronto para aceitar conexões     |
-| `pnpm app:up`                 | Gera e inicia o container da aplicação em modo produção     |
-| `pnpm app:down`               | Para e remove o container da aplicação                      |
-| `pnpm build`                  | Gera o build otimizado para produção                        |
-| `pnpm start`                  | Inicia o servidor de produção                               |
-| `pnpm lint`                   | Executa a verificação estática com ESLint                   |
-| `pnpm format`                 | Formata o código do projeto com Prettier                    |
-| `pnpm typecheck`              | Executa a verificação de tipos do TypeScript (tsc --noEmit) |
-| `pnpm lint:check`             | Executa verificação completa de ESLint e Prettier           |
-| `pnpm lint:fix`               | Corrige problemas automáticos de ESLint e Prettier          |
-| `pnpm check`                  | Alias para `pnpm lint:check`                                |
-| `pnpm fix`                    | Alias para `pnpm lint:fix`                                  |
-| `pnpm lint:secretlint:check`  | Verifica possíveis vazamentos de credenciais no código      |
-| `pnpm test`                   | Executa os testes automatizados com Jest                    |
-| `pnpm test:watch`             | Executa o Jest em modo watch interativo                     |
-| `pnpm test:cov`               | Executa os testes com relatório de cobertura de código      |
-| `pnpm update:check`           | Visualiza atualizações disponíveis agrupadas por gravidade  |
-| `pnpm update:patch`           | Aplica apenas atualizações de correção de bugs (patch)      |
-| `pnpm update:minor`           | Aplica atualizações retrocompatíveis (minor e patch)        |
-| `pnpm update:major`           | Atualização interativa focada em grandes versões (major)    |
-| `pnpm update:interactive`     | Interface interativa para selecionar dependências (ncu -i)  |
-| `pnpm update-dev`             | Alias para `pnpm update:interactive`                        |
+| Script                        | Descrição                                                                                 |
+| :---------------------------- | :---------------------------------------------------------------------------------------- |
+| `pnpm dev`                    | Sobe o banco, aguarda conexões, prepara o banco (migrations/seed) e inicia Next.js em dev |
+| `pnpm services:up`            | Inicia os containers Docker de suporte (PostgreSQL 17)                                    |
+| `pnpm services:down`          | Para e remove os containers e redes de suporte                                            |
+| `pnpm services:stop`          | Para a execução dos containers sem remover os dados                                       |
+| `pnpm services:wait:database` | Aguarda o PostgreSQL estar pronto para aceitar conexões                                   |
+| `pnpm db:migrate`             | Executa as migrações do banco de dados (prisma migrate deploy)                            |
+| `pnpm db:seed`                | Executa o seed do banco de dados (cargos, permissões e admin)                             |
+| `pnpm db:setup`               | Aplica migrações e executa o seed no banco de dados                                       |
+| `pnpm db:status`              | Verifica o status das migrações do Prisma                                                 |
+| `pnpm app:up`                 | Gera e inicia o container da aplicação em modo produção                                   |
+| `pnpm app:down`               | Para e remove o container da aplicação                                                    |
+| `pnpm build`                  | Gera o build otimizado para produção                                                      |
+| `pnpm start`                  | Inicia o servidor de produção                                                             |
+| `pnpm lint`                   | Executa a verificação estática com ESLint                                                 |
+| `pnpm format`                 | Formata o código do projeto com Prettier                                                  |
+| `pnpm typecheck`              | Executa a verificação de tipos do TypeScript (tsc --noEmit)                               |
+| `pnpm lint:check`             | Executa verificação completa de ESLint e Prettier                                         |
+| `pnpm lint:fix`               | Corrige problemas automáticos de ESLint e Prettier                                        |
+| `pnpm check`                  | Alias para `pnpm lint:check`                                                              |
+| `pnpm fix`                    | Alias para `pnpm lint:fix`                                                                |
+| `pnpm lint:secretlint:check`  | Verifica possíveis vazamentos de credenciais no código                                    |
+| `pnpm test`                   | Executa os testes automatizados com Jest                                                  |
+| `pnpm test:watch`             | Executa o Jest em modo watch interativo                                                   |
+| `pnpm test:cov`               | Executa os testes com relatório de cobertura de código                                    |
+| `pnpm update:check`           | Visualiza atualizações disponíveis agrupadas por gravidade                                |
+| `pnpm update:patch`           | Aplica apenas atualizações de correção de bugs (patch)                                    |
+| `pnpm update:minor`           | Aplica atualizações retrocompatíveis (minor e patch)                                      |
+| `pnpm update:major`           | Atualização interativa focada em grandes versões (major)                                  |
+| `pnpm update:interactive`     | Interface interativa para selecionar dependências (ncu -i)                                |
+| `pnpm update-dev`             | Alias para `pnpm update:interactive`                                                      |
 
 ### Execução em container
 

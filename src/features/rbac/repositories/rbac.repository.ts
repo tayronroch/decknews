@@ -1,6 +1,6 @@
 import { prisma } from '@/infra/database'
 
-import type { PermissionRecord, RoleRecord } from '../types'
+import type { PermissionRecord, RoleRecord, RoleSummaryRecord } from '../types'
 
 const permissionFields = {
   id: true,
@@ -14,6 +14,15 @@ const roleFields = {
   description: true,
   isSystem: true,
   permissions: { select: { permission: { select: permissionFields } } },
+} as const
+// Same shape as roleFields but without the permissions fan-out: callers that
+// only need id/name/description/isSystem (one role per user, at a listing
+// scale) shouldn't pay for every permission row of every role.
+const roleSummaryFields = {
+  id: true,
+  name: true,
+  description: true,
+  isSystem: true,
 } as const
 
 function toRole(role: {
@@ -29,6 +38,20 @@ function toRole(role: {
     description: role.description,
     isSystem: role.isSystem,
     permissions: role.permissions.map((item) => item.permission),
+  }
+}
+
+function toRoleSummary(role: {
+  id: bigint
+  name: string
+  description: string | null
+  isSystem: boolean
+}): RoleSummaryRecord {
+  return {
+    id: role.id,
+    name: role.name,
+    description: role.description,
+    isSystem: role.isSystem,
   }
 }
 
@@ -50,6 +73,9 @@ export interface RbacRepository {
   replaceRolePermissions(roleId: bigint, keys: string[]): Promise<boolean>
   findUserRoles(userId: bigint): Promise<RoleRecord[]>
   replaceUserRoles(userId: bigint, roleIds: bigint[]): Promise<boolean>
+  findRolesByUserIds(
+    userIds: bigint[]
+  ): Promise<Map<bigint, RoleSummaryRecord[]>>
 }
 
 export async function findEffectiveKeysByUserId(
@@ -211,6 +237,21 @@ export async function replaceUserRoles(
   return true
 }
 
+export async function findRolesByUserIds(
+  userIds: bigint[]
+): Promise<Map<bigint, RoleSummaryRecord[]>> {
+  const rows = await prisma.userRole.findMany({
+    where: { userId: { in: userIds } },
+    select: { userId: true, role: { select: roleSummaryFields } },
+  })
+
+  return rows.reduce((result, row) => {
+    const roles = result.get(row.userId) ?? []
+    roles.push(toRoleSummary(row.role))
+    return result.set(row.userId, roles)
+  }, new Map<bigint, RoleSummaryRecord[]>())
+}
+
 export const rbacRepository: RbacRepository = {
   findEffectiveKeysByUserId,
   listRoles,
@@ -222,4 +263,5 @@ export const rbacRepository: RbacRepository = {
   replaceRolePermissions,
   findUserRoles,
   replaceUserRoles,
+  findRolesByUserIds,
 }
