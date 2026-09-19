@@ -161,34 +161,38 @@ pnpm start
 
 ## Code Quality Scripts
 
-| Script                        | Description                                                                 |
-| :---------------------------- | :-------------------------------------------------------------------------- |
-| `pnpm dev`                    | Starts database services, waits for connection, and launches Next.js in dev |
-| `pnpm services:up`            | Starts supporting Docker containers (PostgreSQL 17)                         |
-| `pnpm services:down`          | Stops and removes supporting containers and networks                        |
-| `pnpm services:stop`          | Stops containers without removing persistent data                           |
-| `pnpm services:wait:database` | Waits until PostgreSQL is ready to accept connections                       |
-| `pnpm app:up`                 | Builds and starts the application container in production mode              |
-| `pnpm app:down`               | Stops and removes the application container                                 |
-| `pnpm build`                  | Generates optimized production build                                        |
-| `pnpm start`                  | Starts production server                                                    |
-| `pnpm lint`                   | Runs static analysis with ESLint                                            |
-| `pnpm format`                 | Formats project code with Prettier                                          |
-| `pnpm typecheck`              | Executes TypeScript type checking (`tsc --noEmit`)                          |
-| `pnpm lint:check`             | Complete check with ESLint and Prettier                                     |
-| `pnpm lint:fix`               | Automatically fixes ESLint and Prettier issues                              |
-| `pnpm check`                  | Alias for `pnpm lint:check && pnpm lint:secretlint:check && pnpm typecheck` |
-| `pnpm fix`                    | Alias for `pnpm lint:fix`                                                   |
-| `pnpm lint:secretlint:check`  | Scans codebase for credential leaks                                         |
-| `pnpm test`                   | Runs automated test suite with Jest                                         |
-| `pnpm test:watch`             | Runs Jest in interactive watch mode                                         |
-| `pnpm test:cov`               | Runs tests with coverage report                                             |
-| `pnpm update:check`           | Checks available dependency updates grouped by type                         |
-| `pnpm update:patch`           | Applies patch updates                                                       |
-| `pnpm update:minor`           | Applies minor and patch updates                                             |
-| `pnpm update:major`           | Interactive major version update                                            |
-| `pnpm update:interactive`     | Interactive dependency selection (`ncu -i`)                                 |
-| `pnpm update-dev`             | Alias for `pnpm update:interactive`                                         |
+| Script                        | Description                                                                                             |
+| :---------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `pnpm dev`                    | Starts database, waits for connection, prepares database (migrations/seed), and launches Next.js in dev |
+| `pnpm services:up`            | Starts supporting Docker containers (PostgreSQL 17)                                                     |
+| `pnpm services:down`          | Stops and removes supporting containers and networks                                                    |
+| `pnpm services:stop`          | Stops containers without removing persistent data                                                       |
+| `pnpm services:wait:database` | Waits until PostgreSQL is ready to accept connections                                                   |
+| `pnpm db:migrate`             | Applies database migrations (`prisma migrate deploy`)                                                   |
+| `pnpm db:seed`                | Seeds database with roles, permissions, and admin user                                                  |
+| `pnpm db:setup`               | Applies migrations and seeds database                                                                   |
+| `pnpm db:status`              | Checks Prisma migration status                                                                          |
+| `pnpm app:up`                 | Builds and starts the application container in production mode                                          |
+| `pnpm app:down`               | Stops and removes the application container                                                             |
+| `pnpm build`                  | Generates optimized production build                                                                    |
+| `pnpm start`                  | Starts production server                                                                                |
+| `pnpm lint`                   | Runs static analysis with ESLint                                                                        |
+| `pnpm format`                 | Formats project code with Prettier                                                                      |
+| `pnpm typecheck`              | Executes TypeScript type checking (`tsc --noEmit`)                                                      |
+| `pnpm lint:check`             | Complete check with ESLint and Prettier                                                                 |
+| `pnpm lint:fix`               | Automatically fixes ESLint and Prettier issues                                                          |
+| `pnpm check`                  | Alias for `pnpm lint:check && pnpm lint:secretlint:check && pnpm typecheck`                             |
+| `pnpm fix`                    | Alias for `pnpm lint:fix`                                                                               |
+| `pnpm lint:secretlint:check`  | Scans codebase for credential leaks                                                                     |
+| `pnpm test`                   | Runs automated test suite with Jest                                                                     |
+| `pnpm test:watch`             | Runs Jest in interactive watch mode                                                                     |
+| `pnpm test:cov`               | Runs tests with coverage report                                                                         |
+| `pnpm update:check`           | Checks available dependency updates grouped by type                                                     |
+| `pnpm update:patch`           | Applies patch updates                                                                                   |
+| `pnpm update:minor`           | Applies minor and patch updates                                                                         |
+| `pnpm update:major`           | Interactive major version update                                                                        |
+| `pnpm update:interactive`     | Interactive dependency selection (`ncu -i`)                                                             |
+| `pnpm update-dev`             | Alias for `pnpm update:interactive`                                                                     |
 
 ### Running in a container
 
