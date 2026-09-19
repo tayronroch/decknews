@@ -90,10 +90,19 @@ describe('PATCH /api/v1/admin/roles/[id]', () => {
       patchRequest({ description: null }),
       paramsFor('1')
     )
+    const json = await response.json()
 
     expect(response.status).toBe(200)
     expect(mockUpdateRole).toHaveBeenCalledWith(actor, 1n, {
       description: null,
+    })
+    expect(json).toEqual({
+      role: {
+        id: '1',
+        name: 'Editor',
+        description: null,
+        isSystem: false,
+      },
     })
   })
 

@@ -100,8 +100,10 @@ describe('PUT /api/v1/admin/users/[id]/roles', () => {
     mockReplaceUserRoles.mockResolvedValueOnce(undefined)
 
     const response = await PUT(putRequest({ roleIds: [] }), paramsFor('1'))
+    const text = await response.text()
 
     expect(response.status).toBe(204)
+    expect(text).toBe('')
     expect(mockReplaceUserRoles).toHaveBeenCalledWith(actor, 1n, [])
   })
 
