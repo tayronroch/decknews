@@ -4,8 +4,9 @@ import { PrismaClient } from '@prisma/client'
 import * as argon2 from '@node-rs/argon2'
 import { Snowflake } from '@sapphire/snowflake'
 
-const ADMINISTRATOR_ROLE = 'Administrador'
-const DEFAULT_USER_ROLE = 'Usuário'
+import rbacCatalog from '../../prisma/rbac-catalog.cjs'
+
+const { roles, syncRbacCatalog } = rbacCatalog
 const DECKNEWS_EPOCH = new Date('2026-01-01T00:00:00.000Z')
 const ARGON2ID_ALGORITHM = 2
 
@@ -51,16 +52,9 @@ async function main() {
   const idGenerator = new Snowflake(DECKNEWS_EPOCH)
 
   try {
-    const administrator = await prisma.role.findUnique({
-      where: { name: ADMINISTRATOR_ROLE },
-      select: { id: true },
-    })
-    const defaultRole = await prisma.role.findUnique({
-      where: { name: DEFAULT_USER_ROLE },
-      select: { id: true },
-    })
-    if (!administrator || !defaultRole)
-      throw new Error('Required system roles are missing')
+    await syncRbacCatalog(prisma)
+    const administrator = roles.administrator
+    const defaultRole = roles.user
 
     let created = false
     await prisma.$transaction(async (tx) => {

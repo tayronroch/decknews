@@ -241,9 +241,11 @@ O primeiro usuário com papel de administrador não é criado por nenhuma rota
 HTTP — é um script de uso único (`infra/scripts/bootstrap-admin.mjs`) que deve
 ser executado dentro do container da aplicação, com acesso direto ao banco.
 
-Pré-requisito: as migrações já devem estar aplicadas (seção acima), pois é a
-migração `..._replace_user_role_with_rbac` que cria os papéis `Administrador`
-e `Usuário` usados pelo script.
+Pré-requisito: as migrações já devem estar aplicadas (seção acima), pois elas
+criam as tabelas do RBAC. O próprio script provisiona (de forma idempotente) o
+catálogo compartilhado em `prisma/rbac-catalog.cjs` — os papéis `Administrador`
+e `Usuário`, todas as permissões e os vínculos padrão — antes de criar o
+administrador, então o admin já nasce com **permissão total**.
 
 ```bash
 # Acessando o shell do container em produção
@@ -256,9 +258,10 @@ export BOOTSTRAP_ADMIN_PASSWORD="senha-com-12-a-256-caracteres"
 node infra/scripts/bootstrap-admin.mjs
 ```
 
-O script é idempotente: se o usuário já existir pelo e-mail, apenas garante o
-papel de `Administrador` (não recria nem altera a senha). Ele imprime
-`Administrador criado.` ou `Administrador configurado.` em caso de sucesso.
+O script é idempotente: além de reconciliar o catálogo de permissões, se o
+usuário já existir pelo e-mail apenas garante o papel de `Administrador` (não
+recria nem altera a senha). Ele imprime `Administrador criado.` ou
+`Administrador configurado.` em caso de sucesso.
 As variáveis `BOOTSTRAP_ADMIN_*` são de uso único — não é necessário mantê-las
 no `.env` do container após a execução.
 
