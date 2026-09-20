@@ -131,18 +131,26 @@ export function RoleForm({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-xs sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{role ? 'Editar cargo' : 'Novo cargo'}</DialogTitle>
+          <DialogTitle className="text-xl font-medium tracking-tight">
+            {role ? 'Editar cargo' : 'Novo cargo'}
+          </DialogTitle>
           <DialogDescription>
             Defina nome, descrição e as permissões concedidas a este cargo.
           </DialogDescription>
         </DialogHeader>
         <form className="grid gap-4" onSubmit={save}>
           <div className="grid gap-1.5">
-            <Label htmlFor="role-name">Nome</Label>
+            <Label
+              htmlFor="role-name"
+              className="text-muted-foreground font-mono text-xs tracking-wider uppercase"
+            >
+              Nome
+            </Label>
             <Input
               id="role-name"
+              className="rounded-xs"
               value={name}
               onChange={(event) => setName(event.target.value)}
               minLength={2}
@@ -152,21 +160,32 @@ export function RoleForm({
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="role-description">Descrição</Label>
+            <Label
+              htmlFor="role-description"
+              className="text-muted-foreground font-mono text-xs tracking-wider uppercase"
+            >
+              Descrição
+            </Label>
             <Textarea
               id="role-description"
+              className="rounded-xs"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               maxLength={500}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="permission-search">Permissões</Label>
+            <Label
+              htmlFor="permission-search"
+              className="text-muted-foreground font-mono text-xs tracking-wider uppercase"
+            >
+              Permissões
+            </Label>
             <div className="relative">
               <SearchIcon className="text-muted-foreground absolute top-2.5 left-3 size-4" />
               <Input
                 id="permission-search"
-                className="pl-9"
+                className="rounded-xs pl-9"
                 placeholder="Buscar permissão..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}

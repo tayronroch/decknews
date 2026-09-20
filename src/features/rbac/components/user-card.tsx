@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 import { rbacClient } from '../client'
 import type { AdminUserDto, RoleSummaryDto } from '../types'
+import { UnsavedNotice } from './unsaved-notice'
 
 export function UserCard({
   user,
@@ -69,17 +70,21 @@ export function UserCard({
   }
 
   return (
-    <Card>
+    <Card className="border-border/70 rounded-xs shadow-none">
       <CardHeader>
-        <CardTitle>{user.name}</CardTitle>
-        <CardDescription>{user.email}</CardDescription>
+        <CardTitle className="text-base font-medium tracking-tight">
+          {user.name}
+        </CardTitle>
+        <CardDescription className="font-mono text-xs">
+          {user.email}
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="space-y-2">
+        <div className="space-y-1">
           {roles.map((role) => (
             <label
               key={role.id}
-              className="hover:bg-accent/50 flex cursor-pointer items-center gap-3 rounded-md p-2 transition-colors"
+              className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-xs p-2 transition-colors"
             >
               <Checkbox
                 checked={selected.has(role.id)}
@@ -89,15 +94,22 @@ export function UserCard({
               />
               <span className="flex items-center gap-2 text-sm">
                 {role.name}
-                {role.isSystem && <Badge variant="secondary">Sistema</Badge>}
+                {role.isSystem && (
+                  <Badge
+                    variant="secondary"
+                    className="rounded-xs font-mono text-[11px] font-normal"
+                  >
+                    Sistema
+                  </Badge>
+                )}
               </span>
             </label>
           ))}
         </div>
         {changed && (
-          <p className="rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-sm">
+          <UnsavedNotice>
             Existem alterações de cargos ainda não salvas.
-          </p>
+          </UnsavedNotice>
         )}
         {canManageRoles && (
           <Button

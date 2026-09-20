@@ -1,10 +1,10 @@
 'use client'
 
-import { ArrowLeftIcon, PlusIcon } from 'lucide-react'
-import Link from 'next/link'
+import { PlusIcon } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
+import { AdminPageShell } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -91,33 +91,24 @@ export function RoleManager({
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-7xl p-4 sm:p-8">
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <Link
-            href="/admin"
-            className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-sm hover:underline"
-          >
-            <ArrowLeftIcon className="size-3.5" /> Voltar para o painel
-          </Link>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Cargos e permissões
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Crie cargos e defina as permissões concedidas a cada um deles.
-          </p>
-        </div>
-        {capabilities.canCreate && (
+    <AdminPageShell
+      eyebrow="// Cargos"
+      title="Cargos e permissões"
+      description="Crie cargos e defina as permissões concedidas a cada um deles."
+      backHref="/admin"
+      backLabel="Voltar para o painel"
+      action={
+        capabilities.canCreate ? (
           <Button onClick={() => setEditing(null)}>
             <PlusIcon /> Novo cargo
           </Button>
-        )}
-      </header>
-
+        ) : undefined
+      }
+    >
       {loading && (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((item) => (
-            <Skeleton key={item} className="h-96" />
+            <Skeleton key={item} className="h-96 rounded-xs" />
           ))}
         </div>
       )}
@@ -139,8 +130,10 @@ export function RoleManager({
       )}
 
       {!loading && !rolesError && roles.length === 0 && (
-        <section className="rounded-xl border border-dashed p-10 text-center">
-          <h2 className="font-semibold">Nenhum cargo encontrado</h2>
+        <section className="border-border/70 rounded-xs border border-dashed p-10 text-center">
+          <h2 className="text-base font-medium tracking-tight">
+            Nenhum cargo encontrado
+          </h2>
           <p className="text-muted-foreground mt-1 text-sm">
             Crie o primeiro cargo para começar a organizar acessos.
           </p>
@@ -148,7 +141,7 @@ export function RoleManager({
       )}
 
       {!loading && !rolesError && roles.length > 0 && (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {roles.map((role) => (
             <RoleCard
               key={role.id}
@@ -173,6 +166,6 @@ export function RoleManager({
           onSaved={upsertRole}
         />
       )}
-    </main>
+    </AdminPageShell>
   )
 }

@@ -1,3 +1,4 @@
+import { AdminPageShell } from '@/components/layout'
 import { requirePageUser } from '@/features/auth/services/require-page-user'
 import { UserRoleManager } from '@/features/rbac/components'
 import { listEffectivePermissionKeys } from '@/features/rbac/services'
@@ -9,14 +10,18 @@ export default async function AdminUsersPage() {
 
   if (!granted.has('user.read')) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-3xl items-center p-6">
-        <section className="w-full rounded-xl border p-8 text-center">
-          <h1 className="text-2xl font-semibold">Acesso não autorizado</h1>
-          <p className="text-muted-foreground mt-2">
-            Você não tem permissão para administrar usuários.
-          </p>
-        </section>
-      </main>
+      <AdminPageShell
+        eyebrow="// Acesso"
+        title="Acesso não autorizado"
+        description="Você não tem permissão para administrar usuários."
+        backHref="/admin"
+        backLabel="Voltar para o painel"
+      >
+        <p className="text-muted-foreground max-w-prose text-sm">
+          Peça a um administrador para conceder a permissão de visualizar
+          usuários.
+        </p>
+      </AdminPageShell>
     )
   }
 

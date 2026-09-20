@@ -34,6 +34,7 @@ import { Input } from '@/components/ui/input'
 import { rbacClient } from '../client'
 import type { PermissionDto, RoleDto, RolePanelCapabilities } from '../types'
 import { PermissionList } from './permission-list'
+import { UnsavedNotice } from './unsaved-notice'
 
 export function RoleCard({
   role,
@@ -100,12 +101,17 @@ export function RoleCard({
   }
 
   return (
-    <Card>
+    <Card
+      className={`border-border/70 rounded-xs shadow-none transition-opacity ${deleting ? 'opacity-60' : ''}`}
+    >
       <CardHeader>
-        <CardTitle className="flex flex-wrap items-center gap-2">
+        <CardTitle className="flex flex-wrap items-center gap-2 text-base font-medium tracking-tight">
           {role.name}
           {role.isSystem && (
-            <Badge variant="secondary">
+            <Badge
+              variant="secondary"
+              className="rounded-xs font-mono text-[11px] font-normal"
+            >
               <ShieldCheckIcon /> Cargo do sistema
             </Badge>
           )}
@@ -119,6 +125,7 @@ export function RoleCard({
               <Button
                 size="icon-sm"
                 variant="ghost"
+                className="rounded-xs"
                 onClick={() => onEdit(role)}
                 aria-label={`Editar ${role.name}`}
               >
@@ -129,6 +136,7 @@ export function RoleCard({
               <Button
                 size="icon-sm"
                 variant="ghost"
+                className="hover:text-destructive rounded-xs"
                 disabled={role.isSystem || deleting}
                 onClick={() => setConfirming(true)}
                 aria-label={`Excluir ${role.name}`}
@@ -143,7 +151,7 @@ export function RoleCard({
         <div className="relative">
           <SearchIcon className="text-muted-foreground absolute top-2.5 left-3 size-4" />
           <Input
-            className="pl-9"
+            className="rounded-xs pl-9"
             placeholder="Buscar permissão..."
             aria-label={`Buscar permissão em ${role.name}`}
             value={search}
@@ -158,12 +166,18 @@ export function RoleCard({
           onToggle={toggle}
         />
         {changed && (
-          <p className="rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-sm">
+          <UnsavedNotice>
             Existem alterações de permissões ainda não salvas.
-          </p>
+          </UnsavedNotice>
         )}
         {deleting && (
-          <p className="text-muted-foreground text-sm">Excluindo...</p>
+          <p className="text-muted-foreground flex items-center gap-2 font-mono text-xs">
+            <span
+              aria-hidden="true"
+              className="bg-destructive size-1.5 animate-pulse rounded-full"
+            />
+            Excluindo...
+          </p>
         )}
         {capabilities.canManagePermissions && (
           <Button
@@ -175,7 +189,7 @@ export function RoleCard({
         )}
       </CardContent>
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-xs">
           <AlertDialogHeader>
             <AlertDialogTitle>
               Tem certeza que deseja excluir este cargo?

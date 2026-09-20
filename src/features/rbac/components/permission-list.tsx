@@ -46,7 +46,7 @@ export function PermissionList({
 
   if (groups.length === 0) {
     return (
-      <p className="text-muted-foreground py-5 text-sm">
+      <p className="text-muted-foreground border-border/60 rounded-xs border border-dashed px-3 py-4 text-center font-mono text-xs">
         Nenhuma permissão encontrada.
       </p>
     )

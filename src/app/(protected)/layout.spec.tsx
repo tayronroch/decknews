@@ -14,6 +14,19 @@ import ProtectedLayout from './layout'
 
 const sessionCookieName = 'decknews_session'
 
+// AdminPage renders <AdminPageShell><AdminNav items={…} /></AdminPageShell>:
+// reach the nav through the shell's children instead of a positional index, so
+// a layout change fails with a clear message instead of `undefined`.
+function navItemsOf(page: unknown): AdminNavItem[] {
+  const items = (
+    page as { props?: { children?: { props?: { items?: AdminNavItem[] } } } }
+  ).props?.children?.props?.items
+
+  if (!items) throw new Error('AdminNav não foi encontrado no AdminPageShell')
+
+  return items
+}
+
 jest.mock('next/headers', () => ({ cookies: jest.fn(), headers: jest.fn() }))
 jest.mock('next/navigation', () => ({ redirect: jest.fn() }))
 jest.mock('@/features/auth/services', () => ({
@@ -196,13 +209,10 @@ describe('ProtectedLayout', () => {
       'user.read',
     ])
 
-    const result = (await AdminPage()) as {
-      props: { children: Array<{ props: { items: AdminNavItem[] } }> }
-    }
-    const nav = result.props.children[1]
+    const items = navItemsOf(await AdminPage())
 
-    expect(nav?.props.items).toHaveLength(2)
-    expect(nav?.props.items.map((item) => item.href)).toEqual([
+    expect(items).toHaveLength(2)
+    expect(items.map((item) => item.href)).toEqual([
       '/admin/roles',
       '/admin/users',
     ])
@@ -219,13 +229,10 @@ describe('ProtectedLayout', () => {
     })
     mockListEffectivePermissionKeys.mockResolvedValue(['role.read'])
 
-    const result = (await AdminPage()) as {
-      props: { children: Array<{ props: { items: AdminNavItem[] } }> }
-    }
-    const nav = result.props.children[1]
+    const items = navItemsOf(await AdminPage())
 
-    expect(nav?.props.items).toHaveLength(1)
-    expect(nav?.props.items[0]?.href).toBe('/admin/roles')
+    expect(items).toHaveLength(1)
+    expect(items[0]?.href).toBe('/admin/roles')
   })
 
   it('renders authenticated content for a valid session', async () => {

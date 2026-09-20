@@ -1,3 +1,4 @@
+import { AdminPageShell } from '@/components/layout'
 import { requirePageUser } from '@/features/auth/services/require-page-user'
 import { AdminNav, type AdminNavItem } from '@/features/rbac/components'
 import { listEffectivePermissionKeys } from '@/features/rbac/services'
@@ -30,16 +31,12 @@ export default async function AdminPage() {
   ]
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl p-4 sm:p-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Painel administrativo
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Área administrativa do Decknews.
-        </p>
-      </header>
+    <AdminPageShell
+      eyebrow="// Painel"
+      title="Painel administrativo"
+      description="Área administrativa do Decknews."
+    >
       <AdminNav items={items} />
-    </main>
+    </AdminPageShell>
   )
 }

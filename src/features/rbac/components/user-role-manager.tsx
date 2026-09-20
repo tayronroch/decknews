@@ -1,9 +1,9 @@
 'use client'
 
-import { ArrowLeftIcon, SearchIcon } from 'lucide-react'
-import Link from 'next/link'
+import { SearchIcon } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
+import { AdminPageShell } from '@/components/layout'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -74,35 +74,29 @@ export function UserRoleManager({
   )
 
   return (
-    <main className="mx-auto min-h-screen max-w-7xl p-4 sm:p-8">
-      <header className="mb-8">
-        <Link
-          href="/admin"
-          className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-sm hover:underline"
-        >
-          <ArrowLeftIcon className="size-3.5" /> Voltar para o painel
-        </Link>
-        <h1 className="text-3xl font-bold tracking-tight">Usuários e cargos</h1>
-        <p className="text-muted-foreground mt-2">
-          Defina quais cargos cada pessoa tem na plataforma.
-        </p>
-      </header>
-
-      <div className="relative mb-6">
-        <SearchIcon className="text-muted-foreground absolute top-2.5 left-3 size-4" />
-        <Input
-          className="pl-9"
-          placeholder="Buscar usuário..."
-          aria-label="Buscar usuário"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </div>
-
+    <AdminPageShell
+      eyebrow="// Usuários"
+      title="Usuários e cargos"
+      description="Defina quais cargos cada pessoa tem na plataforma."
+      backHref="/admin"
+      backLabel="Voltar para o painel"
+      action={
+        <div className="relative w-full sm:w-72">
+          <SearchIcon className="text-muted-foreground absolute top-2.5 left-3 size-4" />
+          <Input
+            className="rounded-xs pl-9"
+            placeholder="Buscar usuário..."
+            aria-label="Buscar usuário"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+      }
+    >
       {loading && (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((item) => (
-            <Skeleton key={item} className="h-56" />
+            <Skeleton key={item} className="h-56 rounded-xs" />
           ))}
         </div>
       )}
@@ -125,8 +119,10 @@ export function UserRoleManager({
       )}
 
       {!loading && !usersError && filteredUsers.length === 0 && (
-        <section className="rounded-xl border border-dashed p-10 text-center">
-          <h2 className="font-semibold">Nenhum usuário encontrado</h2>
+        <section className="border-border/70 rounded-xs border border-dashed p-10 text-center">
+          <h2 className="text-base font-medium tracking-tight">
+            Nenhum usuário encontrado
+          </h2>
           <p className="text-muted-foreground mt-1 text-sm">
             Ajuste a busca ou aguarde novos cadastros.
           </p>
@@ -134,7 +130,7 @@ export function UserRoleManager({
       )}
 
       {!loading && !usersError && filteredUsers.length > 0 && (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filteredUsers.map((user) => (
             <UserCard
               key={user.id}
@@ -146,6 +142,6 @@ export function UserRoleManager({
           ))}
         </div>
       )}
-    </main>
+    </AdminPageShell>
   )
 }
