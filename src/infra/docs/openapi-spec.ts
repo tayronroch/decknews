@@ -171,6 +171,18 @@ export const openApiSpec = {
         },
       },
     },
+    '/api/v1/admin/users': {
+      get: {
+        tags: ['Admin'],
+        operationId: 'listUsers',
+        security: [{ sessionCookie: [] }],
+        responses: {
+          '200': { description: 'Usuários.' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '403': { $ref: '#/components/responses/ForbiddenError' },
+        },
+      },
+    },
     '/api/v1/admin/users/{id}/roles': {
       get: {
         tags: ['Admin'],

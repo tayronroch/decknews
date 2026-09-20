@@ -66,6 +66,7 @@ export interface UserRepository {
   findUserAuthByEmail(email: string): Promise<UserAuthRecord | null>
   updatePasswordHash(userId: bigint, passwordHash: string): Promise<void>
   createUser(input: CreateUserRepositoryInput): Promise<UserRecord>
+  listUsers(): Promise<UserRecord[]>
 }
 
 export async function findUserById(id: bigint): Promise<UserRecord | null> {
@@ -140,10 +141,19 @@ export async function createUser(
   }
 }
 
+export async function listUsers(): Promise<UserRecord[]> {
+  const users = await prisma.user.findMany({
+    select: USER_PUBLIC_FIELDS,
+    orderBy: { name: 'asc' },
+  })
+  return users.map(toUserRecord)
+}
+
 export const userRepository: UserRepository = {
   findUserById,
   findUserByEmail,
   findUserAuthByEmail,
   updatePasswordHash,
   createUser,
+  listUsers,
 }

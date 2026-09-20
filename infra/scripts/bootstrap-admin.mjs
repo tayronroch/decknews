@@ -25,8 +25,11 @@ function validateInput() {
     throw new Error('Invalid admin name')
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw new Error('Invalid admin email')
-  if (password.length < 12 || password.length > 256)
-    throw new Error('Invalid admin password')
+  const minPasswordLength = process.env.NODE_ENV === 'production' ? 12 : 6
+  if (password.length < minPasswordLength || password.length > 256)
+    throw new Error(
+      `Invalid admin password (minimum ${minPasswordLength} characters)`
+    )
   if (pepper.trim().length < 16) throw new Error('Invalid password pepper')
 
   return { name, email, password, pepper }

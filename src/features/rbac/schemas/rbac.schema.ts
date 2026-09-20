@@ -10,6 +10,7 @@ export const roleSchema = z
   .strict()
 export const roleUpdateSchema = roleSchema
   .partial()
+  .extend({ description: z.string().trim().max(500).nullable().optional() })
   .refine((value) => Object.keys(value).length > 0)
 export const permissionKeysSchema = z
   .object({ permissions: z.array(z.string().trim().min(1).max(100)).min(0) })
